@@ -33,6 +33,9 @@
 
 * { box-sizing: border-box; }
 
+:root:has(.welcome-screen),
+:root:has(.library-landing:not(.has-navigation)) { background: #050608; }
+
 html, body, #root { min-width: 320px; min-height: 100%; margin: 0; }
 body { min-height: 100vh; }
 button, a { font: inherit; }
@@ -77,7 +80,7 @@ button { color: inherit; }
 .welcome-screen.is-leaving {
   pointer-events: none;
   transform-origin: left center;
-  animation: welcome-page-turn .62s cubic-bezier(.65, 0, .35, 1) both;
+  animation: welcome-page-turn .26s cubic-bezier(.22, 1, .36, 1) both;
 }
 
 .welcome-grain {
@@ -157,6 +160,7 @@ button { color: inherit; }
   .brand-flourish { margin-top: 20px; }
   .welcome-literary-quote { margin-top: 24px; }
 }
+
 
 .welcome-frame {
   position: absolute;
@@ -359,16 +363,16 @@ button { color: inherit; }
 .login-story { position: relative; z-index: 0; display: grid; min-height: 590px; align-content: center; justify-items: start; overflow: hidden; padding: clamp(35px, 5vw, 64px); background: radial-gradient(ellipse at 18% 15%, rgba(196, 122, 95, .12), transparent 42%), linear-gradient(145deg, #eee3d6, #e8dccd 64%, #e2d4c4); color: #342b27; }
 .login-story::before { position: absolute; z-index: -1; top: 3%; right: -5%; color: rgba(128, 86, 62, .055); content: "01"; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(15rem, 25vw, 22rem); font-style: italic; line-height: .8; pointer-events: none; }
 .login-story::after { position: absolute; z-index: -1; right: -73px; bottom: -80px; width: 240px; height: 240px; border: 1px solid rgba(152, 84, 63, .2); border-radius: 50%; content: ""; box-shadow: 0 0 0 16px rgba(152,84,63,.035), 0 0 0 38px rgba(152,84,63,.025); pointer-events: none; }
-.login-story__art { position: relative; width: min(100%, 390px); margin: 23px 0 8px -10px; }
-.login-story__art svg { display: block; width: 100%; overflow: visible; }
-.login-story__orb { fill: rgba(196, 122, 95, .12); stroke: rgba(152, 84, 63, .4); stroke-width: 1; }
-.login-story__page { fill: #d8c19a; stroke: #c4a67a; stroke-width: 1.5; }
-.login-story__page--right { fill: #eee0c3; }
-.login-story__book-lines { fill: none; stroke: #97784f; stroke-linecap: round; stroke-width: 1.5; opacity: .72; }
-.login-story__spine { fill: none; stroke: #98543f; stroke-linecap: round; stroke-linejoin: round; stroke-width: 2; }
+.login-story__art { position: relative; width: min(100%, 390px); height: 240px; margin: 23px 0 8px -10px; }
+.login-book-scene { --u: min(1.15px, .15vmin); display: grid; width: 100%; height: 100%; place-items: center; padding-top: calc(30 * var(--u)); perspective: calc(1000 * var(--u)); }
+.login-book-model { position: relative; width: calc(130 * var(--u)); height: calc(175 * var(--u)); border-radius: calc(2 * var(--u)) calc(8 * var(--u)) calc(8 * var(--u)) calc(2 * var(--u)); background: color-mix(in srgb, #202a56 calc((1 - var(--open)) * 100%), transparent); transform-style: preserve-3d; transform: translate(calc(60 * var(--u) * var(--open) + var(--u)), calc(-6 * var(--u))) rotateX(24deg) rotateY(-12deg); animation: login-book-flip-close 5.4s ease-in-out forwards; box-shadow: 0 calc(7 * var(--u)) calc(13 * var(--u)) color-mix(in srgb, rgba(0, 0, 0, .28) calc((1 - var(--open)) * 100%), transparent); }
+.login-book-model i { --end: calc(-118deg - var(--n) * 12deg); position: absolute; inset: calc(3 * var(--u)) calc(3 * var(--u)) calc(3 * var(--u)) 0; border-radius: 0 calc(5 * var(--u)) calc(5 * var(--u)) 0; background: linear-gradient(90deg, #c9d0f2, #fff 14%); transform-origin: left center; --from: calc((4 - var(--n)) * .04); transform: translateZ(calc(var(--n) * max(1px, var(--u)))) rotateY(calc(var(--end) * clamp(0, (var(--open) - var(--from)) / .84, 1))); }
+.login-book-model .cover { inset: 0; border-radius: calc(2 * var(--u)) calc(8 * var(--u)) calc(8 * var(--u)) calc(2 * var(--u)); background: linear-gradient(90deg, #202a56, #93a7ff 12%); opacity: 1; }
+@property --open { syntax: '<number>'; inherits: true; initial-value: 0; }
+@keyframes login-book-flip-close { 0%, 6% { --open: 0; } 15% { --open: .18; } 27% { --open: .42; } 40% { --open: .68; } 53%, 60% { --open: 1; } 100% { --open: 0; } }
+@media (prefers-reduced-motion: reduce) { .login-book-model { animation: none; --open: 0; } }
 .login-story h2 { max-width: 390px; margin: 0; color: #342b27; font-size: clamp(2.7rem, 4vw, 4rem); font-weight: 400; line-height: .94; }
 .login-story > p { max-width: 320px; margin: 17px 0 26px; color: #74655b; font-size: 1.1rem; line-height: 1.4; }
-.login-story__catalogue { display: flex; width: min(100%, 360px); justify-content: space-between; padding-top: 11px; border-top: 1px solid rgba(152, 84, 63, .25); color: #80513e; font-family: Arial, sans-serif; font-size: .54rem; letter-spacing: .16em; }
 .login-card { display: flex; flex-direction: column; justify-content: center; padding: clamp(34px, 6vw, 76px); }
 .login-card h1 { max-width: 490px; margin: 0; color: #352a22; font-size: clamp(2.1rem, 4vw, 3.3rem); font-weight: 400; line-height: 1.02; }
 .login-card__description { max-width: 440px; margin: 15px 0 0; color: #756b60; font-size: 1.18rem; line-height: 1.45; }
@@ -434,7 +438,6 @@ button { color: inherit; }
 .ui-alert__description { margin: 0; font-family: Arial, sans-serif; font-size: .86rem; line-height: 1.4; }
 
 .login-card.ui-card { position: relative; gap: 0; border: 0; border-left: 1px solid var(--surface-border); border-radius: 0; background: radial-gradient(ellipse at 88% 0%, rgba(196, 122, 95, .1), transparent 30%), linear-gradient(135deg, #fffaf3, #f5efe6); box-shadow: inset 14px 0 32px rgba(74, 52, 37, .025); }
-.login-card.ui-card::before { position: absolute; top: 46px; right: 48px; width: 42px; height: 3px; background: var(--terracotta); content: ""; box-shadow: -9px 6px 0 -1px rgba(152, 84, 63, .35); }
 .login-card__header, .login-card__content, .login-card__footer { z-index: 1; }
 .login-card__header { padding: 0; }
 .login-card.ui-card .ui-card__title { max-width: 490px; color: #342b27; font-family: var(--font-display); font-size: clamp(2.7rem, 3.8vw, 3.4rem); font-weight: 400; line-height: .98; }
@@ -518,6 +521,9 @@ button { color: inherit; }
 .shelf-book-slot .shelf-volume { width: 100%; flex: 0 0 auto; }
 .shelf-book-slot.is-moving { opacity: .55; }
 .shelf-volume { position: relative; display: flex; width: clamp(35px, 5.2vw, 62px); height: var(--book-height, 180px); flex: 0 0 clamp(35px, 5.2vw, 62px); flex-direction: column; align-items: center; justify-content: space-between; overflow: hidden; padding: 12px 6px 9px; border: 1px solid rgba(31, 20, 13, .72); border-radius: 4px 4px 1px 1px; background: linear-gradient(90deg, rgba(29, 18, 12, .58), transparent 13%, rgba(255, 231, 187, .13) 19%, transparent 31%, transparent 78%, rgba(24, 15, 10, .26) 100%), linear-gradient(180deg, color-mix(in srgb, var(--spine-color) 78%, #f3d5a6), var(--spine-color) 28%, color-mix(in srgb, var(--spine-color) 78%, #201711)); color: #f4e5ca; box-shadow: inset 3px 0 5px rgba(255, 235, 199, .13), inset -3px 0 5px rgba(17, 11, 8, .28), 2px 0 2px rgba(255, 243, 220, .12), 3px 5px 7px rgba(12, 8, 5, .29); cursor: grab; touch-action: none; user-select: none; transform-origin: center bottom; transition: transform .22s cubic-bezier(.2, .7, .2, 1), filter .22s ease, box-shadow .22s ease; will-change: transform; }
+.shelf-volume__specular { position: absolute; z-index: 0; inset: 0; padding: 1px; border-radius: inherit; background: conic-gradient(from var(--specular-angle, 215deg), transparent 0deg 146deg, rgba(255, 239, 195, .08) 158deg, rgba(255, 241, 203, .72) 176deg, rgba(255, 239, 195, .1) 196deg, transparent 210deg 322deg, rgba(255, 236, 181, .48) 342deg, transparent 360deg); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: .26; pointer-events: none; transition: opacity .2s ease; }
+.shelf-volume:hover .shelf-volume__specular, .shelf-volume:focus-visible .shelf-volume__specular { opacity: .92; }
+.shelf-volume.is-dragging .shelf-volume__specular { opacity: .35; }
 .shelf-volume.is-dragging { pointer-events: none; opacity: .16; filter: none; transform: none; }
 .shelf-drag-preview { position: fixed; z-index: 1000; pointer-events: none; cursor: grabbing; opacity: .96; filter: brightness(1.12); transform: translate(-50%, -50%) scale(1.04); transition: none; will-change: left, top, transform; }
 .shelf-volume::before { position: absolute; inset: 8px 4px; border: 1px solid rgba(224, 192, 139, .37); border-right-color: rgba(224, 192, 139, .13); border-left-color: rgba(224, 192, 139, .13); content: ""; pointer-events: none; }
@@ -669,10 +675,6 @@ button { color: inherit; }
 .book-dialog__reading-form > .library-primary-button { grid-column: 1 / -1; justify-self: start; min-height: 38px; padding: 8px 13px; font-size: .72rem; }
 .book-dialog__rating { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 17px; }
 .book-dialog__rating p { margin: 0; color: #786854; font-size: .8rem; letter-spacing: .07em; text-transform: uppercase; }
-.book-dialog__rating div { display: flex; gap: 3px; }
-.book-dialog__rating button { padding: 0 2px; border: 0; background: transparent; color: #b18442; font-size: 1.55rem; cursor: pointer; transition: transform .18s ease, color .18s ease; }
-.book-dialog__rating button:hover:not(:disabled) { transform: scale(1.18); color: #8c5d24; }
-.book-dialog__rating button:disabled { cursor: not-allowed; opacity: .45; }
 .book-dialog__rating small { flex-basis: 100%; color: #958674; font-size: .75rem; }
 .book-dialog__error { margin: 12px 0 0; color: #9c493b; font-size: .83rem; }
 .book-dialog__close:focus-visible, .book-dialog__rating button:focus-visible { outline: 2px solid #8a6244; outline-offset: 3px; }
@@ -707,9 +709,6 @@ button { color: inherit; }
 .book-dialog__reading-panel .book-dialog__rating { margin-top: 22px; padding-top: 17px; border-top: 1px solid rgba(112, 80, 51, .13); }
 .book-dialog__reading-panel .book-dialog__error { margin-bottom: 0; }
 .book-dialog__save-button { grid-column: 1 / -1; justify-self: stretch; min-height: 42px; }
-.book-dialog__rating-button.ui-button { min-height: auto; padding: 0 2px; border: 0; border-radius: 0; color: #b18442; font-size: 1.55rem; letter-spacing: 0; line-height: 1; text-transform: none; }
-.book-dialog__rating-button.ui-button:hover:not(:disabled) { background: transparent; color: #8c5d24; transform: scale(1.12); }
-.book-dialog__rating-button.ui-button:disabled { transform: none; }
 .book-dialog__header { width: min(100%, 760px); margin-right: auto; margin-left: auto; text-align: center; }
 .book-dialog__header .book-dialog__facts { justify-content: center; }
 .book-dialog__body { display: block; width: min(100%, 760px); margin: 34px auto 0; }
@@ -979,9 +978,10 @@ button { color: inherit; }
 
 @keyframes content-arrive { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes welcome-page-turn {
-  from { opacity: 1; filter: blur(0); transform: perspective(1400px) rotateY(0) scale(1); }
-  to { opacity: 0; filter: blur(4px); transform: perspective(1400px) rotateY(-7deg) scale(.98); }
+  from { opacity: 1; filter: none; transform: translateY(0) scale(1); }
+  to { opacity: .97; filter: none; transform: translateY(-4px) scale(.997); }
 }
+@keyframes login-arrive { from { opacity: 1; transform: translateY(4px) scale(.997); } to { opacity: 1; transform: translateY(0) scale(1); } }
 @keyframes write-logo {
   0% { stroke-dashoffset: 1600; fill: transparent; }
   82% { stroke-dashoffset: 0; fill: transparent; }
@@ -1158,10 +1158,9 @@ button { color: inherit; }
   .empty-shelf { margin-top: 44px; }
   .login-layout { width: min(100%, 460px); grid-template-columns: 1fr; margin: 34px auto 0; }
   .login-story { min-height: 0; align-content: center; justify-items: center; padding: 30px 24px 26px; text-align: center; }
-  .login-story__art { width: min(100%, 270px); margin: 8px auto 4px; }
+  .login-story__art { width: min(100%, 270px); height: 190px; margin: 8px auto 4px; }
   .login-story h2 { max-width: 330px; font-size: clamp(2rem, 8vw, 2.6rem); }
   .login-story > p { margin: 10px auto 18px; font-size: .98rem; }
-  .login-story__catalogue { max-width: 330px; font-size: .48rem; }
   .login-card { padding: 30px 24px 32px; }
   .login-card.ui-card { border-top: 1px solid rgba(117, 81, 56, .16); border-left: 0; }
   .login-card.ui-card .ui-card__title { font-size: clamp(2.1rem, 7vw, 2.7rem); }
@@ -1172,10 +1171,8 @@ button { color: inherit; }
   .explore-view { padding-top: 18px; }
   .explore-heading { align-items: flex-start; flex-direction: column; gap: 10px; }
   .explore-count { margin: 0; }
-  .explore-search { grid-template-columns: 1fr 1fr; padding: 14px; }
-  .explore-search__query { grid-column: 1 / -1; }
-  .explore-search > button { grid-column: 1 / -1; }
-  .catalog-results { grid-template-columns: 1fr; }
+  .explore-search { grid-template-columns: minmax(0, 1fr) auto; padding: 14px; }
+      .catalog-results { grid-template-columns: 1fr; }
   .catalog-card { grid-template-columns: 128px minmax(0, 1fr); gap: 17px; }
   .personal-library__heading { align-items: center; }
   .library-filters { padding: 11px 12px 10px; }
@@ -1803,7 +1800,7 @@ button { color: inherit; }
 .explore-heading--primary h1 { color: #203a4d; font-size: clamp(2.2rem, 4.1vw, 3.2rem); line-height: 1.04; }
 .explore-heading--primary .explore-intro { max-width: 640px; margin-top: 7px; color: #6e6b65; font-size: .98rem; }
 .explore-search {
-  grid-template-columns: minmax(0, 1fr) minmax(145px, .48fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 10px;
   margin-bottom: 0;
   padding: 13px 0;
@@ -1896,7 +1893,7 @@ button { color: inherit; }
 .explore-suggestions button:focus-visible, .explore-popular-searches button:focus-visible { outline: 2px solid #a98955; outline-offset: 2px; }
 @media (max-width: 1050px) {
   .explore-dashboard { grid-template-columns: minmax(0, 1fr) minmax(225px, 255px); gap: 17px; }
-  .explore-search { grid-template-columns: minmax(0, 1fr) minmax(130px, .5fr) auto; }
+  .explore-search { grid-template-columns: minmax(0, 1fr) auto; }
 }
 @media (max-width: 820px) {
   .explore-dashboard { grid-template-columns: minmax(0, 1fr); }
@@ -1905,9 +1902,8 @@ button { color: inherit; }
 @media (max-width: 600px) {
   .explore-dashboard { gap: 20px; }
   .explore-heading--primary h1 { font-size: clamp(1.85rem, 8vw, 2.45rem); }
-  .explore-search { grid-template-columns: minmax(0, 1fr) minmax(0, .72fr); }
-  .explore-search__query { grid-column: 1 / -1; }
-  .explore-search > .library-primary-button { min-width: 0; }
+  .explore-search { grid-template-columns: minmax(0, 1fr) auto; }
+    .explore-search > .library-primary-button { min-width: 0; }
   .explore-popular-searches { gap: 6px; }
   .explore-popular-searches > span { flex-basis: 100%; }
   .catalog-card { grid-template-columns: 82px minmax(0, 1fr); gap: 10px; }
@@ -2477,8 +2473,7 @@ button { color: inherit; }
   .book-dialog__save-button.ui-button { min-height: 36px; }
   .book-dialog__rating { gap: 8px; margin-top: 10px; }
   .book-dialog__reading-panel .book-dialog__rating { margin-top: 10px; padding-top: 9px; }
-  .book-dialog__rating button,
-  .book-dialog__rating-button.ui-button { font-size: 1.35rem; }
+  .book-dialog__peek-rating { --pr-size: 23px; }
   .book-dialog__rating small { font-size: .68rem; }
   .book-dialog__remove-trigger { margin-top: 8px; padding: 5px 0; font-size: .7rem; }
   .book-dialog__remove-confirmation { gap: 10px; margin-top: 8px; padding: 11px 12px; }
@@ -2640,12 +2635,11 @@ button { color: inherit; }
 .progress-tasks__form button:disabled { cursor: wait; opacity: .55; }
 .progress-tasks__list { display: grid; gap: 0; margin: 9px 0 0; padding: 0; list-style: none; }
 .progress-tasks__list li { display: flex; min-height: 37px; align-items: center; justify-content: space-between; gap: 10px; border-top: 1px solid rgba(91, 79, 64, .1); }
-.progress-tasks__list li label { display: flex; min-width: 0; align-items: center; gap: 10px; color: #5f5244; font-size: .82rem; cursor: pointer; }
-.progress-tasks__list input { width: 17px; height: 17px; accent-color: #778469; }
-.progress-tasks__list li.is-complete label span { color: #928878; text-decoration: line-through; }
-.progress-tasks__list li > button { width: 28px; height: 28px; border: 0; background: transparent; color: #9b7c5a; font-size: 1.15rem; cursor: pointer; }
+.progress-tasks__list li .progress-tasks__check { --sc-row: 34px; min-height: 34px; min-width: 0; flex: 1; gap: 10px; overflow: visible; color: #c7cad4; font-size: .82rem; }
+.progress-tasks__list li.is-complete .progress-tasks__check { color: #9297a6; }
+.progress-tasks__list li > button:not(.progress-tasks__check) { width: 28px; height: 28px; border: 0; background: transparent; color: #9b7c5a; font-size: 1.15rem; cursor: pointer; }
 .progress-tasks__empty { margin: 12px 0 0; color: #918473; font-size: .78rem; }
-.progress-tasks__form input:focus-visible, .progress-tasks__form button:focus-visible, .progress-tasks__list button:focus-visible, .progress-tasks__list input:focus-visible { outline: 2px solid #ad8a52; outline-offset: 2px; }
+.progress-tasks__form input:focus-visible, .progress-tasks__form button:focus-visible, .progress-tasks__list button:focus-visible, .progress-tasks__list .spring-check:focus-visible { outline: 2px solid #93a7ff; outline-offset: 2px; }
 @media (max-width: 680px) {
   .progress-tasks { padding: 13px; }
   .progress-tasks__heading { align-items: flex-start; flex-direction: column; gap: 8px; }
@@ -2704,7 +2698,7 @@ button { color: inherit; }
 }
 .library-landing--personal .library-primary-button:hover:not(:disabled),
 .library-landing--personal .library-overview > .library-add-book:hover:not(:disabled),
-.library-landing--personal .library-current-reading__continue:hover { background: #b1bdff; color: #08090d; }
+.library-landing--personal .library-current-reading__continue:hover { background: #b1bdff; color: #0b0c12; }
 .library-landing--personal .library-category-bar__label { color: #a9adba; }
 .library-landing--personal .library-category-tab {
   border-color: var(--library-line);
@@ -2792,6 +2786,7 @@ button { color: inherit; }
 .library-landing--personal .library-current-reading__pages strong { color: var(--library-accent); }
 .library-landing--personal .library-current-reading__cover-fallback { background: #20232c; color: var(--library-accent); }
 .library-landing--personal :where(button, a, input, select):focus-visible { outline-color: var(--library-accent); }
+
 #library-main.library-landing--personal .library-header .library-wordmark,
 #library-main.library-landing--personal .library-header .library-wordmark span,
 #library-main.library-landing--personal .library-header .library-navigation button,
@@ -2838,7 +2833,7 @@ button { color: inherit; }
   color: #0b0c12;
   box-shadow: none;
 }
-.library-landing--themed :is(.library-primary-button, .progress-evolution-cta, .reading-timer__control):hover:not(:disabled) { background: #b1bdff; color: #08090d; }
+.library-landing--themed :is(.library-primary-button, .progress-evolution-cta, .reading-timer__control):hover:not(:disabled) { background: #b1bdff; color: #0b0c12; }
 .library-landing--themed .explore-view :is(.explore-intelligent-card, .explore-suggestions, .catalog-card, .explore-state, .explore-genres) {
   border-color: var(--app-border);
   background: var(--app-panel);
@@ -2850,7 +2845,20 @@ button { color: inherit; }
 .library-landing--themed .explore-view :is(.explore-search, .explore-search input, .explore-search select, .catalog-card__actions select, .explore-popular-searches button) { border-color: var(--app-border); background-color: var(--app-panel-raised); color: var(--app-text); }
 .library-landing--themed .explore-view .explore-popular-searches > span { color: var(--app-accent-muted); }
 .library-landing--themed .explore-view :is(.explore-genres__all, .catalog-card__bookmark, .explore-suggestions__more, .catalog-card__source a) { color: var(--app-accent); }
-.library-landing--themed .explore-view .explore-genre-card { border-color: var(--app-border); color: var(--app-text); filter: saturate(.55); }
+.library-landing--themed .explore-view .explore-genre-card {
+  border-color: var(--app-border);
+  background: linear-gradient(115deg, var(--app-panel-raised), var(--app-panel));
+  box-shadow: 0 5px 16px rgba(0, 0, 0, .24), inset 0 1px rgba(255, 255, 255, .035);
+  color: var(--app-text);
+  filter: none;
+}
+.library-landing--themed .explore-view .explore-genre-card:hover {
+  border-color: var(--app-accent-muted);
+  background: linear-gradient(115deg, #1b1e29, var(--app-panel));
+  box-shadow: 0 8px 20px rgba(0, 0, 0, .32), 0 0 16px rgba(147, 167, 255, .08), inset 0 1px rgba(255, 255, 255, .06);
+}
+.library-landing--themed .explore-view .explore-genre-card__art { color: var(--app-accent); opacity: .76; }
+.library-landing--themed .explore-view .explore-genre-card:focus-visible { outline-color: var(--app-accent); }
 .library-landing--themed .explore-view .catalog-card__facts > span:not(.catalog-card__source) { border-color: var(--app-border); background: #1c1f27; color: var(--app-muted); }
 .library-landing--themed .explore-view .explore-suggestion { border-color: var(--app-border); }
 .library-landing--themed .explore-view .explore-suggestion > button { border-color: rgba(147, 167, 255, .55); background: transparent; color: var(--app-accent); }
@@ -2883,7 +2891,8 @@ button { color: inherit; }
 .library-landing--themed .reading-timer__book-icon,
 .library-landing--themed .progress-heading__icon,
 .library-landing--themed .progress-metric-row article > span { color: var(--app-accent); }
-.library-landing--themed :is(.reading-timer__goal-track, .reading-timer__goal-ring, .progress-current-card__meter, .progress-achievement__track, .progress-tasks__list li) { border-color: var(--app-border); background-color: #292c35; }
+.library-landing--themed :is(.reading-timer__goal-track, .reading-timer__goal-ring, .progress-current-card__meter, .progress-achievement__track) { border-color: var(--app-border); background-color: #292c35; }
+.library-landing--themed .progress-tasks__list li { border-color: var(--app-border); background: transparent; }
 .library-landing--themed :is(.reading-timer__goal-track span, .progress-current-card__meter span, .progress-achievement__track i) { background: var(--app-accent); }
 .library-landing--themed .reading-timer__goal-panel { border-color: var(--app-border); }
 .library-landing--themed .reading-timer__control.is-stop { border: 1px solid var(--app-border); background: #20232c; color: var(--app-muted); }
@@ -2912,7 +2921,7 @@ button { color: inherit; }
 .library-landing--themed .reading-chart :is(text, .reading-chart__legend, .reading-chart__scale-note) { fill: var(--app-muted); color: var(--app-muted); }
 .library-landing--themed :is(.progress-tasks__form input, .progress-tasks__form button) { border-color: var(--app-border); background: var(--app-panel-raised); color: var(--app-text); }
 .library-landing--themed .progress-tasks__form button { border-color: var(--app-accent); background: var(--app-accent); color: #0b0c12; }
-.library-landing--themed .progress-tasks__list input { accent-color: var(--app-accent); }
+.library-landing--themed .progress-tasks__list .progress-tasks__check { color: var(--app-muted); }
 
 /* Book detail uses a body portal, so theme it while the authenticated app is mounted. */
 body:has(.library-landing--themed) .book-dialog {
@@ -2961,10 +2970,17 @@ body:has(.library-landing--themed) {
 .library-landing--themed .login-story__art { filter: grayscale(.8); }
 
 /* Keep the unauthenticated sign-in view in the same visual system. */
-.library-landing:not(.has-navigation) { color: #fff; background: radial-gradient(ellipse at 50% 35%, #161922, #090a0d 68%, #050608); }
+.library-landing:not(.has-navigation) { position: relative; isolation: isolate; color: #fff; background: radial-gradient(ellipse at 50% 35%, #161922, #090a0d 68%, #050608); animation: login-arrive .28s cubic-bezier(.22, 1, .36, 1) both; }
+.library-landing:not(.has-navigation) .login-book-drift { position: fixed; z-index: 0; inset: 0; opacity: .56; pointer-events: none; }
+.library-landing:not(.has-navigation) .login-book-drift .drift-wall { -webkit-mask-image: none; mask-image: none; }
+.library-landing:not(.has-navigation) .login-book-drift::after { position: absolute; z-index: 1; inset: 0; background: radial-gradient(ellipse at 50% 45%, rgba(5, 6, 8, .3), rgba(5, 6, 8, .16) 58%, rgba(5, 6, 8, .1)); content: ""; pointer-events: none; }
+.library-landing:not(.has-navigation) > :not(.login-book-drift) { position: relative; z-index: 1; }
 .library-landing:not(.has-navigation) .login-layout,
 .library-landing:not(.has-navigation) .login-story,
-.library-landing:not(.has-navigation) .login-card { border-color: #292c35; background: #101116; color: #fff; }
+.library-landing:not(.has-navigation) .login-card { border-color: #292c35; background: rgba(16, 17, 22, .88); color: #fff; }
+.library-landing:not(.has-navigation) .login-layout { background: rgba(16, 17, 22, .55); }
+.library-landing:not(.has-navigation) .login-story { background: rgba(16, 17, 22, .66); }
+.library-landing:not(.has-navigation) .login-card { background: rgba(16, 17, 22, .7); }
 .library-landing:not(.has-navigation) :is(.login-story h2, .login-card h1, .login-card__description, .login-story > p, .login-form label, .login-switch) { color: #fff; }
 .library-landing:not(.has-navigation) :is(.login-form input, .password-field input) { border-color: #292c35; background: #15171e; color: #f2f3f7; -webkit-text-fill-color: #f2f3f7; caret-color: #aab8ff; }
 .library-landing:not(.has-navigation) .login-form .ui-input:-webkit-autofill,
@@ -2979,8 +2995,13 @@ body:has(.library-landing--themed) {
   transition: background-color 9999s ease-out;
 }
 .library-landing:not(.has-navigation) .login-form .library-primary-button { border-color: #93a7ff; background: #93a7ff; color: #0b0c12; }
+.library-landing:not(.has-navigation) .login-form .login-submit-button.ui-button--default { border-color: #93a7ff; background: #93a7ff; color: #0b0c12; }
+.library-landing:not(.has-navigation) .login-form .login-submit-button.ui-button--default:hover:not(:disabled) { border-color: #b1bdff; background: #b1bdff; color: #0b0c12; }
 .library-landing:not(.has-navigation) .login-switch button,
 .library-landing:not(.has-navigation) .password-toggle { color: #93a7ff; }
+.library-landing:not(.has-navigation) .login-card__footer { color: #fff; font-size: 1.12rem; }
+.library-landing:not(.has-navigation) .login-card__footer .ui-button--link { color: #fff; font-size: 1.12rem; }
+.library-landing:not(.has-navigation) .login-card__footer .ui-button--link:hover:not(:disabled) { color: #fff; }
 
 .welcome-book-drift {
   position: absolute;
@@ -3050,6 +3071,11 @@ body:has(.library-landing--themed) {
 }
 .welcome-literary-quote footer { color: var(--welcome-attribution); font-family: "Manrope", Arial, sans-serif; font-size: .62rem; letter-spacing: .18em; }
 
+/* Keep the authenticated top navigation legible on the dark library surface. */
+#library-main.has-navigation .library-header :is(.library-header__mark, .library-wordmark, .library-wordmark span, .library-navigation button, .library-header__icon-button, .library-text-button) {
+  color: #fff;
+}
+
 .welcome-screen.is-intro { overflow-y: auto; place-items: start center; cursor: default; }
 .welcome-screen.is-intro .welcome-book-drift { position: fixed; opacity: .27; }
 .welcome-screen.is-intro .welcome-frame { position: fixed; }
@@ -3100,3 +3126,34 @@ body:has(.library-landing--themed) {
   .brand-flourish { margin-top: 20px; }
   .welcome-literary-quote { margin-top: 24px; }
 }
+
+/* Make Progress screen copy comfortable to read at normal zoom. */
+.library-landing--themed .reading-progress-view .progress-heading .library-kicker { font-size: .78rem; }
+.library-landing--themed .reading-progress-view .progress-heading .explore-intro { font-size: 1.12rem; }
+.library-landing--themed .reading-progress-view .progress-current-card h2 { font-size: 1.3rem; }
+.library-landing--themed .reading-progress-view .progress-current-card__details h3 { font-size: 1.08rem; }
+.library-landing--themed .reading-progress-view .progress-current-card__details p,
+.library-landing--themed .reading-progress-view .progress-current-card__empty p { font-size: .96rem; }
+.library-landing--themed .reading-progress-view .progress-current-card__details small { font-size: .8rem; }
+.library-landing--themed .reading-progress-view .progress-current-card > button,
+.library-landing--themed .reading-progress-view .progress-current-card__empty button { font-size: .86rem; }
+.library-landing--themed .reading-progress-view .reading-timer__identity h2 { font-size: 1.32rem; }
+.library-landing--themed .reading-progress-view .reading-timer__identity p { font-size: .9rem; }
+.library-landing--themed .reading-progress-view .reading-timer__goal-panel h3 { font-size: 1rem; }
+.library-landing--themed .reading-progress-view .reading-timer__goal-panel p,
+.library-landing--themed .reading-progress-view .reading-timer__goal-ring span { font-size: .86rem; }
+.library-landing--themed .reading-progress-view .progress-tasks__heading .library-kicker { font-size: .76rem; }
+.library-landing--themed .reading-progress-view .progress-tasks__heading h2 { font-size: 1.32rem; }
+.library-landing--themed .reading-progress-view .progress-tasks__heading p { font-size: .94rem; }
+.library-landing--themed .reading-progress-view .progress-tasks__count { font-size: .9rem; }
+.library-landing--themed .reading-progress-view .progress-tasks__form { font-size: 1rem; }
+.library-landing--themed .reading-progress-view .progress-tasks__form input { font-size: 1rem; }
+.library-landing--themed .reading-progress-view .progress-tasks__form button { font-size: .9rem; }
+.library-landing--themed .reading-progress-view .progress-tasks__list .progress-tasks__check { font-size: 1rem; }
+.library-landing--themed .reading-progress-view .progress-tasks__empty { font-size: .92rem; }
+.library-landing--themed .reading-progress-view .progress-metric-row article small { font-size: .82rem; }
+.library-landing--themed .reading-progress-view .progress-section-heading h2 { font-size: 1.4rem; }
+.library-landing--themed .reading-progress-view .progress-achievements > p { font-size: .9rem; }
+.library-landing--themed .reading-progress-view .progress-achievement strong { font-size: .94rem; }
+.library-landing--themed .reading-progress-view .progress-achievement small { font-size: .8rem; }
+.library-landing--themed .reading-progress-view .progress-period-switch button { font-size: .78rem; }

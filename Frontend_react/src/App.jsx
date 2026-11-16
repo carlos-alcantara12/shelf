@@ -4,7 +4,8 @@ import { Alert, AlertDescription } from "./components/ui/alert";
 import { Avatar, AvatarFallback } from "./components/ui/avatar";
 import { Badge } from "./components/ui/badge";
 import { Button } from "./components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "./components/ui/card";
+import BellToggle from "./components/BellToggle";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "./components/ui/card";
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHandle } from "./components/ui/drawer";
 import { Field, FieldDescription, FieldLabel } from "./components/ui/field";
@@ -14,14 +15,40 @@ import { Progress } from "./components/ui/progress";
 import { Skeleton } from "./components/ui/skeleton";
 import { Tabs, TabsList, TabsTrigger } from "./components/ui/tabs";
 import TextType from "./components/TextType";
+import SpringCheck from "./components/SpringCheck";
 import DriftWall from "./components/DriftWall";
 import StrokeText from "./components/StrokeText";
 import AnimatedContent from "./components/AnimatedContent";
 import SplitText from "./components/SplitText";
 import SpecularButton from "./components/SpecularButton";
+import PeekRating from "./components/PeekRating";
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "/api").replace(/\/$/, "");
 const WELCOME_QUOTE_KEY = "mybooks:last-welcome-quote";
+
+function readStoredValue(key) {
+  try {
+    return window.localStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
+function writeStoredValue(key, value) {
+  try {
+    window.localStorage.setItem(key, value);
+  } catch {
+    // A sessão ainda pode ser usada enquanto esta página permanecer aberta.
+  }
+}
+
+function removeStoredValue(key) {
+  try {
+    window.localStorage.removeItem(key);
+  } catch {
+    // O armazenamento pode estar bloqueado pelo navegador.
+  }
+}
 const welcomeQuotes = [
   { text: "Quando certa manhã Gregor Samsa acordou de sonhos intranquilos, encontrou-se em sua cama metamorfoseado num inseto monstruoso.", work: "A metamorfose", author: "Franz Kafka" },
   { text: "Todos pertencem a todos.", work: "Admirável mundo novo", author: "Aldous Huxley" },
@@ -149,7 +176,7 @@ function WelcomeScreen({ onContinue }) {
   function handleContinue() {
     if (isLeaving) return;
     setIsLeaving(true);
-    const delay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 620;
+    const delay = window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 260;
     continueTimerRef.current = window.setTimeout(onContinue, delay);
   }
 
@@ -323,7 +350,7 @@ async function getLibraryPage(path, token, onToken, signal) {
   let response = await fetchLibraryPageRequest(path, token, signal);
 
   if (response.status === 401) {
-    const refresh = window.localStorage.getItem("mybooks:refresh-token");
+    const refresh = readStoredValue("mybooks:refresh-token");
     if (!refresh) throw new Error("Sua sessão expirou. Entre novamente.");
     const refreshResponse = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
       method: "POST",
@@ -333,7 +360,7 @@ async function getLibraryPage(path, token, onToken, signal) {
     });
     if (!refreshResponse.ok) throw new Error("Sua sessão expirou. Entre novamente.");
     const refreshed = await refreshResponse.json();
-    window.localStorage.setItem("mybooks:access-token", refreshed.access);
+    writeStoredValue("mybooks:access-token", refreshed.access);
     onToken(refreshed.access);
     response = await fetchLibraryPageRequest(path, refreshed.access, signal);
   }
@@ -410,6 +437,7 @@ function BookDetailDialog({ entry, accessToken, onToken, onClose, onEntryUpdated
   const [removing, setRemoving] = useState(false);
   const [error, setError] = useState("");
   const [coverFailed, setCoverFailed] = useState(false);
+  const ratingTouchedRef = useRef(false);
   const dialogRef = useRef(null);
   const closeButtonRef = useRef(null);
   const book = entry.book;
@@ -454,14 +482,20 @@ function BookDetailDialog({ entry, accessToken, onToken, onClose, onEntryUpdated
   }, [onClose]);
 
   useEffect(() => {
+    ratingTouchedRef.current = false;
+  }, [book.id]);
+
+  useEffect(() => {
     let active = true;
     catalogRequest("/reviews/", accessToken, onToken)
       .then((data) => {
         const reviews = Array.isArray(data) ? data : data.results || [];
         const found = reviews.find((item) => item.book?.id === book.id);
         if (active) {
-          setReview(found || null);
-          setRating(found?.rating || 0);
+          if (!ratingTouchedRef.current) {
+            setReview(found || null);
+            setRating(found?.rating || 0);
+          }
         }
       })
       .catch((requestError) => { if (active) setError(requestError.message); });
@@ -521,6 +555,7 @@ function BookDetailDialog({ entry, accessToken, onToken, onClose, onEntryUpdated
       setError("Conclua a leitura para avaliar esta obra.");
       return;
     }
+    ratingTouchedRef.current = true;
     setRating(nextRating);
     setSaving(true);
     setError("");
@@ -620,11 +655,24 @@ function BookDetailDialog({ entry, accessToken, onToken, onClose, onEntryUpdated
             </form>
             <div className="book-dialog__rating">
               <p>Sua avaliação</p>
-              <div role="group" aria-label={status === "READ" ? "Avaliar de 1 a 5 estrelas" : "Avaliação disponível após concluir a leitura"}>
-                {[1, 2, 3, 4, 5].map((value) => (
-                  <Button key={value} variant="ghost" className="book-dialog__rating-button" type="button" aria-label={`${value} ${value === 1 ? "estrela" : "estrelas"}`} aria-pressed={rating === value} disabled={saving || !canRate} onClick={() => saveRating(value)}>{value <= rating ? "★" : "☆"}</Button>
-                ))}
-              </div>
+              <PeekRating
+                value={rating}
+                count={5}
+                shape="star"
+                labels={["Péssimo", "Ruim", "Regular", "Bom", "Excelente"]}
+                activeColor="#f5b400"
+                idleColor="#625b52"
+                tipColor="#17181d"
+                tipTextColor="#f4f1ea"
+                size={26}
+                lift={6}
+                magnify={1.15}
+                allowClear={false}
+                disabled={saving || !canRate}
+                ariaLabel={canRate ? "Avaliar de 1 a 5 estrelas" : "Avaliação disponível após concluir a leitura"}
+                className="book-dialog__peek-rating"
+                onChange={saveRating}
+              />
               {!canRate && <small>Salve a leitura completa para avaliar esta obra.</small>}
             </div>
             {!confirmRemoval ? (
@@ -667,7 +715,7 @@ async function catalogRequest(path, token, onToken, options = {}) {
   });
   let response = await send(token);
   if (response.status === 401) {
-    const refresh = window.localStorage.getItem("mybooks:refresh-token");
+    const refresh = readStoredValue("mybooks:refresh-token");
     if (!refresh) throw new Error("Sua sessão expirou. Entre novamente.");
     const refreshResponse = await fetch(`${API_BASE_URL}/auth/token/refresh/`, {
       method: "POST",
@@ -676,7 +724,7 @@ async function catalogRequest(path, token, onToken, options = {}) {
     });
     if (!refreshResponse.ok) throw new Error("Sua sessão expirou. Entre novamente.");
     const refreshed = await refreshResponse.json();
-    window.localStorage.setItem("mybooks:access-token", refreshed.access);
+    writeStoredValue("mybooks:access-token", refreshed.access);
     onToken(refreshed.access);
     response = await send(refreshed.access);
   }
@@ -1052,7 +1100,21 @@ function ReadingProgressView({ accessToken, onToken, onGoToLibrary }) {
             </form>
             {readingTasks.length ? <ul className="progress-tasks__list">
               {readingTasks.map((task) => <li className={task.completed ? "is-complete" : ""} key={task.id}>
-                <label><input type="checkbox" checked={task.completed} disabled={taskSaving} onChange={() => toggleReadingTask(task)} /><span>{task.title}</span></label>
+                <SpringCheck
+                  className="progress-tasks__check"
+                  label={task.title}
+                  checked={task.completed}
+                  disabled={taskSaving}
+                  onChange={() => toggleReadingTask(task)}
+                  color="#c7cad4"
+                  fillColor="#93a7ff"
+                  checkColor="#090a0e"
+                  boxSize={17}
+                  boxRadius={4}
+                  fontSize={13}
+                  doneOpacity={0.42}
+                  strike="left"
+                />
                 <button type="button" aria-label={`Excluir tarefa: ${task.title}`} disabled={taskSaving} onClick={() => deleteReadingTask(task)}>×</button>
               </li>)}
             </ul> : <p className="progress-tasks__empty">Adicione uma meta simples para começar. Você poderá marcá-la como concluída quando terminar.</p>}
@@ -1086,11 +1148,12 @@ function ReadingProgressView({ accessToken, onToken, onGoToLibrary }) {
     </section>  );
 }
 
-async function fetchAllPages(path, accessToken, onToken) {
+async function fetchAllPages(path, accessToken, onToken, signal) {
   const result = [];
   let page = 1;
   while (true) {
-    const data = await catalogRequest(`${path}${path.includes("?") ? "&" : "?"}page=${page}`, accessToken, onToken);
+    const activeToken = readStoredValue("mybooks:access-token") || accessToken;
+    const data = await getLibraryPage(`${path}${path.includes("?") ? "&" : "?"}page=${page}`, activeToken, onToken, signal);
     result.push(...(data.results || []));
     if (!data.next) return result;
     page += 1;
@@ -1351,7 +1414,6 @@ function GenreArtwork({ type }) {
 
 function CatalogExplorer({ accessToken, onToken, libraryEntries, onEntryAdded, onStartReading }) {
   const [search, setSearch] = useState("");
-  const [genre, setGenre] = useState("");
   const [submittedSearch, setSubmittedSearch] = useState("");
   const [submittedGenre, setSubmittedGenre] = useState("");
   const [results, setResults] = useState([]);
@@ -1428,8 +1490,7 @@ function CatalogExplorer({ accessToken, onToken, libraryEntries, onEntryAdded, o
   function submitSearch(event) {
     event.preventDefault();
     const nextSearch = search.trim();
-    const nextGenre = genre.trim();
-    if (!nextSearch && !nextGenre) {
+    if (!nextSearch) {
       setError("Digite o título ou autor de uma obra, ou informe um gênero.");
       setResults([]);
       setTotalBooks(0);
@@ -1437,7 +1498,7 @@ function CatalogExplorer({ accessToken, onToken, libraryEntries, onEntryAdded, o
     }
     setPage(1);
     setSubmittedSearch(nextSearch);
-    setSubmittedGenre(nextGenre);
+    setSubmittedGenre("");
   }
 
   function searchForSuggestion(value, type = "title") {
@@ -1446,7 +1507,6 @@ function CatalogExplorer({ accessToken, onToken, libraryEntries, onEntryAdded, o
     setError("");
     setPage(1);
     setSearch(type === "genre" ? "" : nextValue);
-    setGenre(type === "genre" ? nextValue : "");
     setSubmittedSearch(type === "genre" ? "" : nextValue);
     setSubmittedGenre(type === "genre" ? nextValue : "");
   }
@@ -1570,26 +1630,14 @@ function CatalogExplorer({ accessToken, onToken, libraryEntries, onEntryAdded, o
       </div>
       <form className="explore-search" onSubmit={submitSearch} aria-label="Buscar livros no catálogo">
         <label className="explore-search__query">
-          <span>Obra ou autor</span>
+          <span className="sr-only">Obra ou autor</span>
           <span className="search-input-wrap">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 5 5" /></svg>
             <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Ex.: O Pequeno Príncipe" />
           </span>
         </label>
-        <label className="explore-search__genre">
-          <span>Gênero</span>
-          <input value={genre} onChange={(event) => setGenre(event.target.value)} placeholder="Ex.: fantasia" />
-        </label>
         <button className="library-primary-button" type="submit" disabled={loading}>{loading ? "buscando…" : "buscar obras"}</button>
       </form>
-
-      <div className="explore-popular-searches" aria-label="Buscas populares">
-        <span>Buscas populares</span>
-        <button type="button" onClick={() => searchForSuggestion("Fantasia", "genre")}>Fantasia</button>
-        <button type="button" onClick={() => searchForSuggestion("ficção científica", "genre")}>Ficção científica</button>
-        <button type="button" onClick={() => searchForSuggestion("Machado de Assis")}>Machado de Assis</button>
-        <button type="button" onClick={() => searchForSuggestion("O Pequeno Príncipe")}>O Pequeno Príncipe</button>
-      </div>
 
       <div className="catalog-results-heading">
         <h2>Resultados do catálogo</h2>
@@ -1670,7 +1718,6 @@ function CatalogExplorer({ accessToken, onToken, libraryEntries, onEntryAdded, o
           {results.length > 0 && recommendationGenre && <section className="explore-suggestions" aria-labelledby="explore-suggestions-title">
             <div className="explore-suggestions__heading">
               <h2 id="explore-suggestions-title"><span aria-hidden="true">✧</span>Você também pode se interessar</h2>
-              <p>Outras obras do mesmo gênero da sua busca.</p>
             </div>
             {similarBooks.map((book) => (
               <article className="explore-suggestion" key={book.id}>
@@ -1691,10 +1738,10 @@ function CatalogExplorer({ accessToken, onToken, libraryEntries, onEntryAdded, o
 }
 
 function LibraryLanding({ onReturn }) {
-  const [accessToken, setAccessToken] = useState(() => window.localStorage.getItem("mybooks:access-token") || "");
+  const [accessToken, setAccessToken] = useState(() => readStoredValue("mybooks:access-token") || "");
   const [activeView, setActiveView] = useState("library");
   const [navUnread, setNavUnread] = useState(0);
-  const [username, setUsername] = useState(() => window.localStorage.getItem("mybooks:username") || "");
+  const [username, setUsername] = useState(() => readStoredValue("mybooks:username") || "");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -1785,20 +1832,15 @@ function LibraryLanding({ onReturn }) {
   useEffect(() => {
     if (!accessToken) return undefined;
     const controller = new AbortController();
-    const params = new URLSearchParams({ page: String(page) });
-    if (submittedSearch) params.set("search", submittedSearch);
-    if (submittedGenre) params.set("genre", submittedGenre);
-    if (submittedStatus) params.set("status", submittedStatus);
-
     setLoading(true);
     setLibraryLoadError("");
     setError("");
-    getLibraryPage(`/library/?${params.toString()}`, accessToken, setAccessToken, controller.signal)
-      .then((data) => {
-        setEntries(data.results || []);
-        setTotalEntries(data.count || 0);
-        setHasNext(Boolean(data.next));
-        setHasPrevious(Boolean(data.previous));
+    fetchAllPages("/library/", accessToken, setAccessToken, controller.signal)
+      .then((allEntries) => {
+        setEntries(allEntries);
+        setTotalEntries(allEntries.length);
+        setHasNext(false);
+        setHasPrevious(false);
       })
       .catch((requestError) => {
         if (requestError.name !== "AbortError") {
@@ -1809,7 +1851,7 @@ function LibraryLanding({ onReturn }) {
       .finally(() => setLoading(false));
 
     return () => controller.abort();
-  }, [accessToken, page, submittedSearch, submittedGenre, submittedStatus, libraryRevision]);
+  }, [accessToken, libraryRevision]);
 
   async function submitAccess(event) {
     event.preventDefault();
@@ -1837,9 +1879,9 @@ function LibraryLanding({ onReturn }) {
       const data = await readAuthResponse(response);
       if (response.ok && (!data.access || !data.refresh)) throw new Error("The server did not return access tokens. Try again.");
       if (!response.ok) throw new Error(data.detail || "Usuário ou senha inválidos.");
-      window.localStorage.setItem("mybooks:access-token", data.access);
-      window.localStorage.setItem("mybooks:refresh-token", data.refresh);
-      window.localStorage.setItem("mybooks:username", username);
+      writeStoredValue("mybooks:access-token", data.access);
+      writeStoredValue("mybooks:refresh-token", data.refresh);
+      writeStoredValue("mybooks:username", username);
       setAccessToken(data.access);
       setPassword("");
       setCreatingAccount(false);
@@ -1867,9 +1909,9 @@ function LibraryLanding({ onReturn }) {
   }
 
   function signOut() {
-    window.localStorage.removeItem("mybooks:access-token");
-    window.localStorage.removeItem("mybooks:refresh-token");
-    window.localStorage.removeItem("mybooks:username");
+    removeStoredValue("mybooks:access-token");
+    removeStoredValue("mybooks:refresh-token");
+    removeStoredValue("mybooks:username");
     setAccessToken("");
     setActiveView("library");
     setNavUnread(0);
@@ -1953,6 +1995,7 @@ function LibraryLanding({ onReturn }) {
     const targetShelfEntries = shelves.find((shelf) => shelf.shelfIndex === targetShelf);
     if (!targetShelfEntries) return false;
     const targetEntries = targetShelfEntries.filter((item) => item.id !== entry.id);
+    if (targetEntries.length >= SHELF_CAPACITY) return false;
     if (targetPosition > targetEntries.length) return false;
     return targetShelf !== currentShelf || targetPosition !== Number(entry.position || 0);
   }
@@ -1972,6 +2015,15 @@ function LibraryLanding({ onReturn }) {
   }
 
   function updateBookDrag(event) {
+    const button = event.currentTarget;
+    if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const bounds = button.getBoundingClientRect();
+      const pointerX = event.clientX - bounds.left - bounds.width / 2;
+      const pointerY = event.clientY - bounds.top - bounds.height / 2;
+      const shineAngle = Math.atan2(pointerY, pointerX) * (180 / Math.PI) + 90;
+      button.style.setProperty("--specular-angle", `${shineAngle}deg`);
+    }
+
     const drag = bookDragRef.current;
     if (!drag || drag.pointerId !== event.pointerId) return;
     if (!drag.started && Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < 8) return;
@@ -1993,6 +2045,10 @@ function LibraryLanding({ onReturn }) {
       setDragOverShelf(canDrop ? location.shelf : null);
       setDragOverPosition(canDrop ? location.position : null);
     }
+  }
+
+  function resetBookSpecular(event) {
+    if (!bookDragRef.current) event.currentTarget.style.removeProperty("--specular-angle");
   }
 
   function finishBookDrag(event) {
@@ -2030,9 +2086,8 @@ function LibraryLanding({ onReturn }) {
     setDragSwapTargetId(null);
   }
 
-  function openBookUnlessDragged(event, entry) {
+  function openBookUnlessDragged(entry) {
     if (suppressBookClickRef.current) {
-      event.preventDefault();
       suppressBookClickRef.current = false;
       window.clearTimeout(suppressBookClickTimerRef.current);
       return;
@@ -2052,33 +2107,40 @@ function LibraryLanding({ onReturn }) {
   const collectionProgress = entries.length
     ? Math.round((readEntries.length / entries.length) * 100)
     : 0;
-
-  return (
+ return (
     <main id="library-main" className={`library-landing${accessToken ? " has-navigation library-landing--themed" : ""}${accessToken && activeView === "library" ? " library-landing--personal" : ""}`}>
+      {!accessToken && <div className="login-book-drift" aria-hidden="true">
+        <DriftWall items={welcomeBookCovers} columns={8} tileWidth={170} tileHeight={248} gap={18} radius={5} tilt={11} turn={-9} perspective={1400} depth={90} speed={13} direction="up" variance={0.28} parallax={0.12} lift={36} fade={0.18} dim={0.72} grayscale={false} overlayColor="#050608" />
+      </div>}
       {accessToken && <a className="skip-link" href="#library-content">Pular para o conteúdo</a>}
       <header className={`library-header${accessToken ? "" : " library-header--login"}`}>
         {accessToken && <button className="library-header__mark" type="button" onClick={() => setActiveView("library")} aria-label="Ir para minha biblioteca">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5c2.6-.8 5-.3 7.5 1.2v12c-2.5-1.5-4.9-2-7.5-1.2zM19.5 5.5c-2.6-.8-5-.3-7.5 1.2v12c2.5-1.5 4.9-2 7.5-1.2z" /><path d="M12 6.7v12" /></svg>
         </button>}
         <a className="library-wordmark" href="#inicio" onClick={(event) => { event.preventDefault(); onReturn(); }}>
-          MyBooks<span aria-hidden="true">.</span>
+          <SplitText tag="span" text="MyBooks." className="library-wordmark__split" effect="rise" splitType="chars" delay={45} duration={0.8} staggerFrom="start" trigger="load" textAlign="left" />
         </a>
         {accessToken && <nav className="library-navigation" aria-label="Navegação principal" style={{ "--active-module-index": { library: 0, explore: 1, progress: 2, shared: 3 }[activeView] ?? 0 }}>
           <span className="library-navigation__indicator" aria-hidden="true" />
-          <button aria-label="Minha biblioteca" aria-current={activeView === "library" ? "page" : undefined} className={activeView === "library" ? "is-active" : ""} type="button" onClick={() => setActiveView("library")}><span aria-hidden="true" className="library-navigation__icon"><svg viewBox="0 0 24 24"><path d="M4.5 5.5c2.6-.8 5-.3 7.5 1.2v12c-2.5-1.5-4.9-2-7.5-1.2zM19.5 5.5c-2.6-.8-5-.3-7.5 1.2v12c2.5-1.5 4.9-2 7.5-1.2z" /><path d="M12 6.7v12" /></svg></span><span className="library-navigation__text--long">Minha biblioteca</span><span className="library-navigation__text--short" aria-hidden="true">Biblioteca</span></button>
-          <button aria-label="Explorar obras" aria-current={activeView === "explore" ? "page" : undefined} className={activeView === "explore" ? "is-active" : ""} type="button" onClick={() => setActiveView("explore")}><span aria-hidden="true" className="library-navigation__icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><path d="m14.8 9.2-2 4.1-3.6 1.5 1.7-3.8z" /></svg></span><span className="library-navigation__text--long">Explorar obras</span><span className="library-navigation__text--short" aria-hidden="true">Explorar</span></button>
-          <button aria-label="Progresso" aria-current={activeView === "progress" ? "page" : undefined} className={activeView === "progress" ? "is-active" : ""} type="button" onClick={() => setActiveView("progress")}><span aria-hidden="true" className="library-navigation__icon"><svg viewBox="0 0 24 24"><path d="M4 19h3V11H4zM10.5 19h3V7h-3zM17 19h3V4h-3z" /></svg></span><span>Progresso</span></button>
-          <button aria-label="Biblioteca compartilhada" aria-current={activeView === "shared" ? "page" : undefined} className={activeView === "shared" ? "is-active" : ""} type="button" onClick={() => setActiveView("shared")}><span aria-hidden="true" className="library-navigation__icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3" /><path d="M3.5 19c.4-3.3 2.2-5 5.5-5s5.1 1.7 5.5 5M16 5.5a3 3 0 0 1 0 5.8m1 3c2.1.5 3.3 2 3.5 4.7" /></svg></span><span className="library-navigation__text--long">Compartilhada</span><span className="library-navigation__text--short" aria-hidden="true">Juntos</span></button>
+          <button aria-label="Minha biblioteca" aria-current={activeView === "library" ? "page" : undefined} className={activeView === "library" ? "is-active" : ""} type="button" onClick={() => setActiveView("library")}><span aria-hidden="true" className="library-navigation__icon"><svg viewBox="0 0 24 24"><path d="M4.5 5.5c2.6-.8 5-.3 7.5 1.2v12c-2.5-1.5-4.9-2-7.5-1.2zM19.5 5.5c-2.6-.8-5-.3-7.5 1.2v12c2.5-1.5 4.9-2-7.5-1.2z" /><path d="M12 6.7v12" /></svg></span><TextType as="span" text="Minha biblioteca" typingSpeed={42} initialDelay={240} loop={false} typeEffect="fade" cursorStyle="bar" cursorGlide className="library-navigation__text--long" /><TextType as="span" text="Biblioteca" typingSpeed={42} initialDelay={240} loop={false} typeEffect="fade" cursorStyle="bar" cursorGlide className="library-navigation__text--short" aria-hidden="true" /></button>
+          <button aria-label="Explorar obras" aria-current={activeView === "explore" ? "page" : undefined} className={activeView === "explore" ? "is-active" : ""} type="button" onClick={() => setActiveView("explore")}><span aria-hidden="true" className="library-navigation__icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" /><path d="m14.8 9.2-2 4.1-3.6 1.5 1.7-3.8z" /></svg></span><TextType as="span" text="Explorar obras" typingSpeed={42} initialDelay={430} loop={false} typeEffect="fade" cursorStyle="bar" cursorGlide className="library-navigation__text--long" /><TextType as="span" text="Explorar" typingSpeed={42} initialDelay={430} loop={false} typeEffect="fade" cursorStyle="bar" cursorGlide className="library-navigation__text--short" aria-hidden="true" /></button>
+          <button aria-label="Progresso" aria-current={activeView === "progress" ? "page" : undefined} className={activeView === "progress" ? "is-active" : ""} type="button" onClick={() => setActiveView("progress")}><span aria-hidden="true" className="library-navigation__icon"><svg viewBox="0 0 24 24"><path d="M4 19h3V11H4zM10.5 19h3V7h-3zM17 19h3V4h-3z" /></svg></span><TextType as="span" text="Progresso" typingSpeed={42} initialDelay={620} loop={false} typeEffect="fade" cursorStyle="bar" cursorGlide /></button>
+          <button aria-label="Biblioteca compartilhada" aria-current={activeView === "shared" ? "page" : undefined} className={activeView === "shared" ? "is-active" : ""} type="button" onClick={() => setActiveView("shared")}><span aria-hidden="true" className="library-navigation__icon"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3" /><path d="M3.5 19c.4-3.3 2.2-5 5.5-5s5.1 1.7 5.5 5M16 5.5a3 3 0 0 1 0 5.8m1 3c2.1.5 3.3 2 3.5 4.7" /></svg></span><TextType as="span" text="Compartilhada" typingSpeed={42} initialDelay={810} loop={false} typeEffect="fade" cursorStyle="bar" cursorGlide className="library-navigation__text--long" /><TextType as="span" text="Juntos" typingSpeed={42} initialDelay={810} loop={false} typeEffect="fade" cursorStyle="bar" cursorGlide className="library-navigation__text--short" aria-hidden="true" /></button>
         </nav>}
         <div className="library-header__actions">
           {accessToken && <>
-            <button className="library-header__icon-button library-header__search" type="button" aria-label="Buscar obras" onClick={() => setActiveView("explore")}>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.3" /><path d="m15.5 15.5 4.1 4.1" /></svg>
-            </button>
-            <button className="library-header__icon-button library-header__notifications" type="button" aria-label={navUnread ? `${navUnread} notificações não lidas` : "Notificações"} onClick={() => setActiveView("shared")}>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-2.5 7-2.5 8.5h17C20.5 16 18 16 18 9ZM10 21h4" /></svg>
-              {navUnread > 0 && <span className="library-header__notification-dot" aria-hidden="true">{navUnread > 9 ? "9+" : navUnread}</span>}
-            </button>
+            <BellToggle
+              className="library-header__icon-button library-header__notifications"
+              label={navUnread ? `${navUnread} notificações não lidas` : "Notificações"}
+              count={navUnread}
+              pressed={navUnread > 0}
+              badge
+              waves
+              color="#fff"
+              background="transparent"
+              icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M18 9a6 6 0 0 0-12 0c0 7-2.5 7-2.5 8.5h17C20.5 16 18 16 18 9ZM10 21h4" /></svg>}
+              onAction={() => setActiveView("shared")}
+            />
             <Avatar className="library-header__avatar" role="img" aria-label={username ? `Usuário ${username}` : "Perfil do usuário"}>
               <AvatarFallback>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 20c.5-3.8 2.9-5.8 6.5-5.8s6 2 6.5 5.8" /></svg>
@@ -2092,20 +2154,22 @@ function LibraryLanding({ onReturn }) {
         <div className="login-layout">
           <aside className="login-story" aria-label="Uma mensagem sobre leitura">
             <div className="login-story__art" aria-hidden="true">
-              <svg viewBox="0 0 360 240" role="presentation">
-                <circle className="login-story__orb" cx="180" cy="108" r="91" />
-                <path className="login-story__page" d="M180 195c-37-28-82-37-132-24V54c51-14 96-5 132 24z" />
-                <path className="login-story__page login-story__page--right" d="M180 195c37-28 82-37 132-24V54c-51-14-96-5-132 24z" />
-                <path className="login-story__book-lines" d="M65 79c34-8 66-2 96 16M65 97c32-7 63-2 96 16M65 115c28-5 58 1 88 16M295 79c-34-8-66-2-96 16m96 2c-32-7-63-2-96 16m96 2c-28-5-58 1-88 16" />
-                <path className="login-story__spine" d="M180 78v117m-5-113 5 8 5-8" />
-              </svg>
+              <div className="login-book-scene">
+                <div className="login-book-model">
+                  <i style={{ "--n": 0 }} />
+                  <i style={{ "--n": 1 }} />
+                  <i style={{ "--n": 2 }} />
+                  <i style={{ "--n": 3 }} />
+                  <i className="cover" style={{ "--n": 4 }} />
+                </div>
+              </div>
             </div>
-            <h2>Histórias que deixam marcas.</h2>
-            <p>Sua coleção, seu ritmo, seu próximo capítulo.</p>
-            <div className="login-story__catalogue" aria-hidden="true">
-              <span>LEITOR · 001</span>
-              <span>DESDE 2026</span>
-            </div>
+            <h2>
+              <TextType as="span" text={"Hist\u00f3rias que deixam marcas."} typingSpeed={46} initialDelay={350} loop={false} typeEffect="fade" cursorStyle="bar" cursorColor="#aab8ff" cursorGlide />
+            </h2>
+            <p>
+              <TextType as="span" text={"Sua cole\u00e7\u00e3o, seu ritmo, seu pr\u00f3ximo cap\u00edtulo."} typingSpeed={34} initialDelay={1250} loop={false} typeEffect="fade" cursorStyle="bar" cursorColor="#aab8ff" cursorGlide />
+            </p>
           </aside>
 
           <Card as="section" className="login-card" aria-labelledby="library-title">
@@ -2113,9 +2177,6 @@ function LibraryLanding({ onReturn }) {
               <CardTitle as="h1" id="library-title" className={creatingAccount ? undefined : "login-title__single-line"}>
                 {creatingAccount ? "Abra sua primeira estante." : <StrokeText text="Seja bem-vindo(a)" className="login-title__stroke" style={{ display: "inline-block", width: "var(--stroke-text-width)", verticalAlign: "baseline", lineHeight: 1 }} />}
               </CardTitle>
-              <CardDescription className="login-card__description">
-                {creatingAccount ? "Crie sua conta e dê um lugar às histórias que você ama." : "Entre para registrar leituras e encontrar seu próximo livro."}
-              </CardDescription>
             </CardHeader>
 
             <CardContent className="login-card__content">
@@ -2171,7 +2232,7 @@ function LibraryLanding({ onReturn }) {
       ) : activeView === "progress" ? (
         <ReadingProgressView accessToken={accessToken} onToken={setAccessToken} onGoToLibrary={() => setActiveView("library")} />
       ) : activeView === "shared" ? (
-        <SharedLibrariesView accessToken={accessToken} onToken={setAccessToken} username={username || window.localStorage.getItem("mybooks:username") || ""} onUnreadChange={setNavUnread} />
+        <SharedLibrariesView accessToken={accessToken} onToken={setAccessToken} username={username || readStoredValue("mybooks:username") || ""} onUnreadChange={setNavUnread} />
       ) : (
         <section id="library-content" className="personal-library" aria-labelledby="library-title" aria-busy={loading}>
           <div className="library-dashboard">
@@ -2453,8 +2514,10 @@ function LibraryLanding({ onReturn }) {
           setOpenedEntry(updated);
         }}
       />}
-      <button className="back-to-welcome" type="button" onClick={onReturn}>voltar à abertura</button>
-      <footer className="library-footer">MYBOOKS <span>·</span> UM CAPÍTULO DE CADA VEZ</footer>
+      {accessToken && <>
+        <button className="back-to-welcome" type="button" onClick={onReturn}>voltar à abertura</button>
+        <footer className="library-footer">MYBOOKS <span>·</span> UM CAPÍTULO DE CADA VEZ</footer>
+      </>}
     </main>
   );
 }

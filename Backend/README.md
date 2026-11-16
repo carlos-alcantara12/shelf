@@ -7,7 +7,7 @@
 3. No PowerShell, habilite o modo local com `$env:DJANGO_DEBUG="true"`; no Bash, use `export DJANGO_DEBUG=true`.
 4. Aplique as migrações: `python manage.py migrate`.
 5. Crie um administrador: `python manage.py createsuperuser`.
-6. Inicie o servidor local: `python manage.py runserver`.
+6. Inicie o servidor local em `8001`: `python manage.py runserver 127.0.0.1:8001` (o proxy do Vite aponta para essa porta por padrão).
 
 O modo local usa SQLite e uma chave de desenvolvimento. Não use essa chave em produção. As migrações do app `Backend` ficam versionadas em `migrations/`; crie novas migrações com `python manage.py makemigrations Backend` após alterar os modelos.
 

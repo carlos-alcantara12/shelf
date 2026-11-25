@@ -101,7 +101,7 @@ export default function ResultPage() {
     try {
       await saveProfile({ answers: draft.answers });
       clearDraft();
-      navigate("/biblioteca");
+      navigate("/perfil");
     } catch (error) {
       setSaveError(error.message);
       setSaving(false);

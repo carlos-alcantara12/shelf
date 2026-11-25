@@ -1,12 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/app/AuthContext";
 import { useLibrary } from "@/app/LibraryContext";
 import ReaderCard from "@/components/ReaderCard";
-import { Button } from "@/design-system";
 import ProfileReport from "@/pages/diagnostic/ProfileReport";
 import { apiRequest } from "@/lib/api";
-import { clearDraft, fetchRecommendations } from "@/lib/diagnostic";
+import { clearDraft, fetchRecommendations, LEVELS, saveDraft } from "@/lib/diagnostic";
 import { buildCard, RANK_STEPS, rankIndexFor } from "@/lib/readerCard";
 import "@/pages/diagnostic/diagnostic.css";
 import "./profile.css";
@@ -65,10 +64,17 @@ export default function ProfilePage() {
   const result = profile.data?.result;
   const archetype = result?.archetype;
 
-  function retake() {
+  /** Abre o questionário no nível escolhido. Com perfil salvo, as respostas dele vêm junto (só faltam as novas). */
+  function startTest(level, fromScratch = false) {
     clearDraft();
-    navigate("/diagnostico");
+    const answers = !fromScratch && profile.data ? profile.data.answers : {};
+    saveDraft({ level, answers, step: null });
+    navigate("/diagnostico/perguntas");
   }
+
+  const savedLevel = profile.data?.level ?? 0;
+  const answeredTotal = profile.data ? Object.keys(profile.data.answers || {}).length : 0;
+  const nextLevel = LEVELS.find((item) => answeredTotal < item.questions) || null;
 
   return (
     <section id="library-content" className="pf" aria-labelledby="profile-title">
@@ -94,13 +100,8 @@ export default function ProfilePage() {
           <section className="pf-panel" aria-labelledby="pf-type-title">
             <h2 id="pf-type-title" className="pf-panel__title">Seu tipo de leitor</h2>
             {profile.status === "loading" && <p className="pf-muted" role="status">Carregando…</p>}
-            {profile.status === "error" && <p className="pf-muted" role="alert">Não consegui carregar o seu perfil agora.</p>}
-            {profile.status === "none" && (
-              <>
-                <p className="pf-muted">Faça o teste para descobrir o seu tipo de leitor e receber indicações de livros.</p>
-                <Link className="ds-button ds-button--primary ds-button--md" to="/diagnostico">Descobrir meu perfil</Link>
-              </>
-            )}
+            {profile.status === "error" && <p className="pf-muted" role="alert">Não consegui carregar o seu perfil agora. Você ainda pode fazer o teste abaixo.</p>}
+            {profile.status === "none" && <p className="pf-muted">Responda ao teste abaixo para descobrir o seu tipo de leitor e receber indicações de livros.</p>}
             {archetype && (
               <>
                 <p className="pf-type">{archetype.label}</p>
@@ -115,7 +116,6 @@ export default function ProfilePage() {
                 )}
                 <div className="pf-actions">
                   <a className="ds-button ds-button--ghost ds-button--sm" href="#pf-report">Ver relatório completo</a>
-                  <Button size="sm" variant="ghost" onClick={retake}>Refazer o teste</Button>
                 </div>
               </>
             )}
@@ -138,6 +138,47 @@ export default function ProfilePage() {
           </section>
         </div>
       </div>
+
+      <section id="pf-test" className="pf-test" aria-labelledby="pf-test-title">
+        <div className="pf-test__head">
+          <div>
+            <p className="pf-eyebrow">Teste de perfil de leitor</p>
+            <h2 id="pf-test-title">{archetype ? "Aprofunde ou refaça o seu perfil" : "Descubra que tipo de leitor você é"}</h2>
+            <p className="pf-muted">
+              {archetype
+                ? `Você respondeu ${answeredTotal} ${answeredTotal === 1 ? "pergunta" : "perguntas"}. Responda só as que faltam para aumentar a precisão, ou comece de novo.`
+                : "Responda a perguntas rápidas e receba o seu tipo de leitor, os gêneros que combinam com você e indicações de livros. O resultado fica salvo neste perfil."}
+            </p>
+          </div>
+          {archetype && (
+            <button type="button" className="pf-test__restart" onClick={() => startTest(nextLevel?.level || savedLevel || 1, true)}>
+              Refazer do começo
+            </button>
+          )}
+        </div>
+        <ul className="pf-levels">
+          {LEVELS.map((item) => {
+            const done = Boolean(archetype) && answeredTotal >= item.questions;
+            const deeper = Boolean(archetype) && !done;
+            return (
+              <li key={item.level} className={`pf-level${item.recommended && !archetype ? " is-recommended" : ""}${done ? " is-done" : ""}`}>
+                <p className="pf-level__title">{item.title}</p>
+                <p className="pf-level__count"><strong>{item.questions}</strong> perguntas</p>
+                <p className="pf-level__time">{item.time}</p>
+                <button
+                  type="button"
+                  className="pf-level__button"
+                  disabled={done}
+                  onClick={() => startTest(item.level)}
+                  aria-label={done ? `${item.title}: concluído` : `${deeper ? "Continuar com" : "Começar"} o teste ${item.title.toLowerCase()}, ${item.questions} perguntas`}
+                >
+                  {done ? "Concluído ✓" : deeper ? "Continuar →" : "Começar →"}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
 
       {result?.archetype && (
         <div id="pf-report" className="dg dg--embedded">

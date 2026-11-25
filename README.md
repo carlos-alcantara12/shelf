@@ -1,6 +1,6 @@
 # Shelf — sua estante digital
 
-**Shelf** é uma aplicação web para organizar livros e acompanhar a vida de leitura: biblioteca pessoal e bibliotecas compartilhadas, progresso por páginas, sessões de leitura com timer, avaliações e um perfil de leitor que ajuda a descobrir o que ler a seguir. A interface é inspirada em uma estante física de madeira.
+**Shelf** é uma aplicação web para organizar livros e acompanhar a vida de leitura: biblioteca pessoal, progresso por páginas, sessões de leitura com timer, avaliações e um perfil de leitor que ajuda a descobrir o que ler a seguir. A interface é inspirada em uma estante física de madeira.
 
 > O repositório ainda se chama `mybooks` e o app Django continua sendo `Backend`; o produto e os textos da interface usam o nome **Shelf**.
 
@@ -24,7 +24,7 @@ Quem lê com frequência acaba espalhando a vida de leitura por vários lugares:
 | Sem lugar único | Estante pessoal com os status **Quero ler / Lendo / Lido**, busca e filtros |
 | Sem constância | Cronômetro, meta diária, objetivos e tarefas dentro de cada livro, e a evolução por semana, mês e ano |
 | Escolha do próximo livro | Questionário de perfil de leitor, com indicações que explicam o motivo de cada uma |
-| Leitura em grupo | Bibliotecas compartilhadas com convites; status e progresso continuam individuais |
+| Leitura em grupo | A API de bibliotecas compartilhadas (convites, progresso individual) está pronta; a tela foi retirada do frontend por enquanto |
 
 ---
 
@@ -38,12 +38,12 @@ Quem lê com frequência acaba espalhando a vida de leitura por vários lugares:
 | **Catálogo** | Busca no catálogo local e em fontes online (Google Books, com fallback para Open Library); a obra só é importada quando entra em uma estante |
 | **Leitura** | No diálogo de cada livro (aba **Ler**): cronômetro, meta diária, objetivos da sessão e tarefas do livro |
 | **Progresso** | Evolução da leitura por semana, mês e ano, com navegação entre períodos |
-| **Compartilhadas** | Bibliotecas em conjunto, convites, correio interno, pedidos de remoção; status e progresso continuam individuais |
+| **Compartilhadas** | Só na API: bibliotecas em conjunto, convites, correio interno e pedidos de remoção. A tela foi retirada do frontend |
 | **Avaliações** | Nota de 1 a 5 e comentário opcional em livros lidos |
 | **Tendências** | Lista de destaques administrada pelo Django Admin |
 | **Produção** | Dockerfiles, PostgreSQL com SSL, health check, limite de tentativas de login, script de backup e CI |
 
-**Ainda não existe:** indicações personalizadas dentro do catálogo (hoje a lateral só mostra obras do mesmo gênero; veja o [plano](Docs/recomendacoes-catalogo-plano.md)), tendências calculadas automaticamente e uma licença de distribuição.
+**Ainda não existe:** tela de bibliotecas compartilhadas no frontend (a API existe), indicações personalizadas dentro do catálogo (hoje a lateral só mostra obras do mesmo gênero; veja o [plano](Docs/recomendacoes-catalogo-plano.md)), tendências calculadas automaticamente e uma licença de distribuição.
 
 ## Como rodar
 
@@ -130,7 +130,6 @@ O workflow [`quality.yml`](.github/workflows/quality.yml) roda checagem do Djang
 | `/biblioteca` | Minha biblioteca (estante) | exige sessão |
 | `/catalogo` | Explorar obras | exige sessão |
 | `/progresso` | Evolução semanal, mensal e anual | exige sessão |
-| `/compartilhadas` | Bibliotecas compartilhadas e correio | exige sessão |
 
 ### API
 

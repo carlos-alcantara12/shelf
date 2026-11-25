@@ -9,7 +9,6 @@ const LoginPage = lazy(() => import("@/pages/login/LoginPage"));
 const LibraryPage = lazy(() => import("@/pages/library/LibraryPage"));
 const CatalogPage = lazy(() => import("@/pages/catalog/CatalogPage"));
 const ProgressPage = lazy(() => import("@/pages/progress/ProgressPage"));
-const SharedLibrariesPage = lazy(() => import("@/pages/shared/SharedLibrariesPage"));
 const ProfilePage = lazy(() => import("@/pages/profile/ProfilePage"));
 const SignUpPage = lazy(() => import("@/pages/signup/SignUpPage"));
 const DiagnosticLevelPage = lazy(() => import("@/pages/diagnostic/LevelPage"));
@@ -34,7 +33,6 @@ export default function App() {
               <Route path="/biblioteca" element={<LibraryPage />} />
               <Route path="/catalogo" element={<CatalogPage />} />
               <Route path="/progresso" element={<ProgressPage />} />
-              <Route path="/compartilhadas" element={<SharedLibrariesPage />} />
               <Route path="/perfil" element={<ProfilePage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />

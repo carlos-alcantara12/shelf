@@ -65,8 +65,25 @@ body:has(.library-landing--paper) .book-dialog :is(.book-dialog__progress span) 
 @media (min-width: 900px) {
   .book-dialog { --dh: min(660px, calc(100dvh - 48px)); width: min(100%, calc(var(--dh) / 1.5 + 660px)); max-height: var(--dh); overflow: hidden; }
   .book-dialog .book-dialog__book-open { min-height: 0; height: var(--dh); grid-template-columns: calc(var(--dh) / 1.5) minmax(0, 1fr); }
-  .book-dialog .book-dialog__cover-page { min-height: 0; height: var(--dh); padding: 0; }
+  .book-dialog .book-dialog__cover-page { grid-template: 100% / 100%; min-height: 0; height: var(--dh); padding: 0; }
   .book-dialog .book-dialog__cover-page img { position: static; width: 100%; height: 100%; max-width: none; max-height: none; border-radius: 0; object-fit: cover; box-shadow: none; }
-  .book-dialog .book-dialog__cover-page .book-dialog__cover-fallback { position: static; width: 100%; height: 100%; min-height: 0; aspect-ratio: auto; border-radius: 0; }
+  .book-dialog .book-dialog__cover-page .book-dialog__cover-fallback { position: static; align-self: stretch; justify-self: stretch; width: 100%; height: 100%; min-height: 0; max-height: none; aspect-ratio: auto; border-radius: 0; }
   .book-dialog .book-dialog__content-page { min-height: 0; height: var(--dh); padding: 22px 30px; overflow-y: auto; overscroll-behavior: contain; }
+}
+
+/* Menu centralizado na tela (e não só no espaço que sobra entre o logotipo e as ações) */
+@media (min-width: 900px) {
+  #library-main.library-landing--paper.has-navigation .library-header { position: relative; }
+  #library-main.library-landing--paper.has-navigation .library-header .library-navigation {
+    position: absolute;
+    grid-column: 1 / -1;
+    grid-row: 1;
+    left: 50%;
+    top: 50%;
+    display: flex;
+    width: auto;
+    margin: 0;
+    transform: translate(-50%, -50%);
+    justify-content: center;
+  }
 }

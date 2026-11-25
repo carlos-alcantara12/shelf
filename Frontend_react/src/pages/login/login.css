@@ -1,6 +1,6 @@
 /*
  * Tela de login: fundo em espiral de capas (o mesmo da abertura, em versão
- * escura) e o livro 3D animado da lateral esquerda.
+ * escura), cartão em papel e o livro 3D animado da lateral esquerda.
  */
 
 /* ---------- Fundo ---------- */
@@ -9,6 +9,7 @@
 .library-landing:not(.has-navigation) {
   /* Cor de destaque padrão do sistema (terracota): links, cursor e foco. */
   --login-accent: var(--color-terracotta-600);
+  --login-gold: #c9a45c;
   color: var(--text-primary);
   background: var(--surface-page);
 }
@@ -26,41 +27,110 @@
 /* ---------- Cartão ---------- */
 
 .library-landing:not(.has-navigation) .login-layout {
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
-  background: color-mix(in srgb, var(--surface-raised) 80%, transparent);
-  box-shadow: var(--shadow-lg);
-  backdrop-filter: blur(14px);
+  position: relative;
+  border: 1px solid color-mix(in srgb, var(--color-terracotta-600) 14%, var(--border-subtle));
+  border-radius: 24px;
+  background: color-mix(in srgb, var(--surface-raised) 82%, transparent);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.9) inset,
+    0 2px 6px rgba(74, 52, 37, 0.06),
+    0 18px 40px -12px rgba(74, 52, 37, 0.18),
+    0 46px 90px -30px rgba(74, 52, 37, 0.28);
+  backdrop-filter: blur(16px) saturate(1.1);
+  animation: login-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
+/* Fio dourado no topo, como o filete de uma capa de livro. */
+.library-landing:not(.has-navigation) .login-layout::before {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 12%;
+  right: 12%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--login-gold), transparent);
+  content: "";
+  opacity: 0.85;
+  pointer-events: none;
+}
+@keyframes login-rise {
+  from { opacity: 0; transform: translateY(22px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
 .library-landing:not(.has-navigation) .login-story {
-  background: radial-gradient(ellipse at 20% 12%, rgba(255, 255, 255, 0.55), transparent 55%), color-mix(in srgb, var(--surface-sunken) 62%, transparent);
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 38%, rgba(255, 244, 222, 0.85), transparent 70%),
+    radial-gradient(ellipse at 18% 12%, rgba(255, 255, 255, 0.55), transparent 55%),
+    linear-gradient(160deg, color-mix(in srgb, var(--surface-sunken) 70%, transparent), color-mix(in srgb, var(--color-terracotta-600) 7%, var(--surface-sunken)));
   color: var(--text-primary);
+  justify-items: center;
+  text-align: center;
 }
-.library-landing:not(.has-navigation) .login-story::before { color: rgba(52, 43, 39, 0.045); }
-.library-landing:not(.has-navigation) .login-story::after { border-color: rgba(52, 43, 39, 0.1); box-shadow: 0 0 0 16px rgba(52, 43, 39, 0.02), 0 0 0 38px rgba(52, 43, 39, 0.015); }
-.library-landing:not(.has-navigation) .login-story h2 { color: var(--text-primary); }
-.library-landing:not(.has-navigation) .login-story > p { color: var(--text-secondary); }
+/* O "01" fantasma cortava atrás do livro; sai para o livro respirar. */
+.library-landing:not(.has-navigation) .login-story::before { content: none; }
+.library-landing:not(.has-navigation) .login-story::after { border-color: rgba(152, 84, 63, 0.14); box-shadow: 0 0 0 16px rgba(152, 84, 63, 0.03), 0 0 0 38px rgba(152, 84, 63, 0.02); }
+.library-landing:not(.has-navigation) .login-story h2 {
+  max-width: 14ch;
+  color: var(--text-primary);
+  font-size: clamp(2.1rem, 3.1vw, 3rem);
+  line-height: 1.02;
+  text-wrap: balance;
+}
+.library-landing:not(.has-navigation) .login-story > p {
+  max-width: 30ch;
+  margin: 14px auto 0;
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  text-wrap: balance;
+}
 .library-landing:not(.has-navigation) .login-card.ui-card {
-  border-left: 1px solid var(--border-subtle);
-  background: transparent;
+  border: 0;
+  border-left: 1px solid color-mix(in srgb, var(--color-terracotta-600) 12%, var(--border-subtle));
+  border-radius: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 85% 0%, rgba(255, 255, 255, 0.7), transparent 70%),
+    linear-gradient(180deg, rgba(255, 252, 246, 0.55), rgba(250, 244, 233, 0.35));
   color: var(--text-primary);
 }
 .library-landing:not(.has-navigation) .login-card.ui-card .ui-card__title { color: var(--text-primary); }
 
+/* Entrada em cascata do conteúdo do cartão. */
+.library-landing:not(.has-navigation) .login-card > * { animation: login-rise 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.library-landing:not(.has-navigation) .login-card > :nth-child(1) { animation-delay: 0.25s; }
+.library-landing:not(.has-navigation) .login-card > :nth-child(2) { animation-delay: 0.38s; }
+.library-landing:not(.has-navigation) .login-card > :nth-child(3) { animation-delay: 0.5s; }
+
+/* Detalhe sob o título: trecho dourado sobre o filete do cabeçalho. */
+.library-landing:not(.has-navigation) .login-card__header { position: relative; }
+.library-landing:not(.has-navigation) .login-card__header::after {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 64px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--login-gold), transparent);
+  content: "";
+}
+
 /* ---------- Campos e botões ---------- */
 
-.library-landing:not(.has-navigation) .login-form .ui-field__label { color: var(--text-secondary); }
+.library-landing:not(.has-navigation) .login-form { gap: 20px; }
+.library-landing:not(.has-navigation) .login-form .ui-field__label { color: var(--text-secondary); letter-spacing: 0.16em; }
 .library-landing:not(.has-navigation) .login-form .ui-input {
-  border-bottom: 1px solid var(--border-strong);
-  background: rgba(255, 255, 255, 0.55);
+  min-height: 52px;
+  border: 1px solid rgba(117, 81, 56, 0.22);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.62);
+  box-shadow: 0 1px 2px rgba(74, 52, 37, 0.05) inset;
   color: var(--text-primary);
   -webkit-text-fill-color: var(--text-primary);
   caret-color: var(--login-accent);
 }
+.library-landing:not(.has-navigation) .login-form .ui-input:hover { border-color: rgba(117, 81, 56, 0.4); background: rgba(255, 255, 255, 0.78); }
 .library-landing:not(.has-navigation) .login-form .ui-input:focus-visible {
-  border-bottom: 2px solid var(--login-accent);
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 3px 0 color-mix(in srgb, var(--login-accent) 18%, transparent);
+  border-color: var(--login-accent);
+  background: #fff;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--login-accent) 16%, transparent), 0 6px 16px -8px color-mix(in srgb, var(--login-accent) 45%, transparent);
 }
 .library-landing:not(.has-navigation) .login-form .ui-input:-webkit-autofill,
 .library-landing:not(.has-navigation) .login-form .ui-input:-webkit-autofill:hover,
@@ -69,33 +139,58 @@
   -webkit-box-shadow: 0 0 0 1000px #fbf8f2 inset;
   box-shadow: 0 0 0 1000px #fbf8f2 inset;
 }
-.library-landing:not(.has-navigation) .password-toggle { color: var(--login-accent); }
-.library-landing:not(.has-navigation) .password-toggle:hover { color: var(--text-primary); }
+.library-landing:not(.has-navigation) .password-toggle {
+  right: 10px;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  color: var(--login-accent);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+.library-landing:not(.has-navigation) .password-toggle:hover { background: color-mix(in srgb, var(--login-accent) 10%, transparent); color: var(--text-primary); }
 
-/* Botão principal igual ao da abertura: pílula escura. */
+/* Botão principal: pílula escura com seta em círculo que avança ao passar o mouse. */
 .library-landing:not(.has-navigation) .login-submit-button.ui-button--default {
+  min-height: 56px;
+  padding-right: 10px;
   border-color: var(--surface-inverse);
   border-radius: var(--radius-pill);
-  background: var(--surface-inverse);
-  box-shadow: var(--shadow-sm);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--surface-inverse) 88%, #fff), var(--surface-inverse));
+  box-shadow: 0 10px 22px -10px rgba(26, 24, 32, 0.6), 0 1px 0 rgba(255, 255, 255, 0.12) inset;
   color: var(--text-on-inverse);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
 }
 .library-landing:not(.has-navigation) .login-submit-button.ui-button--default:hover:not(:disabled) {
   border-color: var(--color-night-800);
   background: var(--color-night-800);
+  box-shadow: 0 16px 28px -12px rgba(26, 24, 32, 0.65), 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+  transform: translateY(-2px);
 }
+.library-landing:not(.has-navigation) .login-submit-button.ui-button--default:active:not(:disabled) { transform: translateY(0); }
+.library-landing:not(.has-navigation) .login-submit-button [aria-hidden="true"] {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--login-gold);
+  color: var(--surface-inverse);
+  font-size: 1rem;
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.library-landing:not(.has-navigation) .login-submit-button:hover:not(:disabled) [aria-hidden="true"] { transform: translate(2px, -2px) rotate(8deg); }
 .library-landing:not(.has-navigation) .login-card__footer { border-top-color: var(--border-subtle); color: var(--text-secondary); }
 .library-landing:not(.has-navigation) .login-card__footer .ui-button--link { color: var(--login-accent); }
 .library-landing:not(.has-navigation) .login-card__footer .ui-button--link:hover:not(:disabled) { color: var(--text-primary); }
-.library-landing:not(.has-navigation) .ui-alert--destructive { border-color: rgba(152, 72, 61, 0.35); background: rgba(152, 72, 61, 0.08); color: var(--danger-color); }
+.library-landing:not(.has-navigation) .ui-alert--destructive { border-radius: 12px; border-color: rgba(152, 72, 61, 0.35); background: rgba(152, 72, 61, 0.08); color: var(--danger-color); }
 
 /* ---------- Livro ---------- */
 
 @property --t { syntax: "<number>"; inherits: true; initial-value: 0; }
 
-.login-story__art { height: 290px; margin: 6px 0 22px -10px; }
+.login-story__art { height: 330px; margin: 0 0 18px; container-type: size; }
 
 .lb-scene {
+  /* Unidade do livro: acompanha a altura e a largura do espaço reservado a ele. */
   --u: min(1.25px, 0.16vmin);
   position: relative;
   display: grid;
@@ -103,6 +198,9 @@
   height: 100%;
   place-items: center;
   perspective: calc(1100 * var(--u));
+}
+@supports (height: 1cqh) {
+  .lb-scene { --u: min(1.6px, calc(100cqh / 205), calc(100cqw / 285)); }
 }
 .lb-float { position: relative; transform-style: preserve-3d; animation: lb-float 6s ease-in-out infinite; }
 @keyframes lb-float {
@@ -132,8 +230,33 @@
   inset: 0;
   transform: translateZ(calc(var(--T) / -2));
   border-radius: calc(2 * var(--u)) calc(6 * var(--u)) calc(6 * var(--u)) calc(2 * var(--u));
-  background: #5a2c1e;
+  background: linear-gradient(135deg, #6b3524, #4a2418);
 }
+
+/* Última folha, presa ao fundo: sem ela o lado direito ficaria marrom quando as páginas viram. */
+.lb-end {
+  top: calc(2 * var(--u));
+  bottom: calc(2 * var(--u));
+  left: 0;
+  width: calc(var(--W) - 5 * var(--u));
+  transform: translateZ(calc(var(--T) / -2 + 2 * var(--u)));
+  border-radius: 0 calc(2 * var(--u)) calc(2 * var(--u)) 0;
+  background:
+    linear-gradient(90deg, rgba(90, 60, 30, 0.3), transparent 18%),
+    repeating-linear-gradient(0deg, transparent 0 calc(7 * var(--u)), rgba(70, 50, 30, 0.2) calc(7 * var(--u)) calc(8 * var(--u))) calc(14 * var(--u)) calc(20 * var(--u)) / calc(100% - 28 * var(--u)) calc(100% - 40 * var(--u)) no-repeat,
+    linear-gradient(#f4e8d0, #ead9b9);
+}
+.lb-ribbon {
+  position: absolute;
+  top: calc(-3 * var(--u));
+  left: 62%;
+  width: calc(6 * var(--u));
+  height: calc(var(--H) - 1 * var(--u));
+  background: linear-gradient(90deg, #8c2f24, #b9473a 50%, #8c2f24);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 5 * var(--u)), 0 100%);
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.3));
+}
+
 .lb-spine {
   top: 0;
   left: 0;
@@ -166,10 +289,11 @@
   opacity: calc(1 - var(--ec));
 }
 
-/* Páginas: cada uma vira entre `--s` e `--s + 0.1` do ciclo. */
+/* Páginas: cada uma vira entre `--s` e `--s + 0.1` do ciclo, com sombra e curvatura no meio da virada. */
 .lb-page {
   --pk: clamp(0, calc((var(--t) - var(--s)) / 0.1), 1);
   --e: calc((1 - cos(min(var(--pk), var(--c)) * 180deg)) / 2);
+  --bend: sin(var(--e) * 180deg);
   top: calc(2 * var(--u));
   bottom: calc(2 * var(--u));
   left: 0;
@@ -178,25 +302,41 @@
   transform-style: preserve-3d;
   transform:
     translateZ(calc(var(--T) / 2 - 7 * var(--u) + (2 * var(--e) - 1) * (var(--k) - 2.5) * 0.9 * var(--u)))
-    rotateY(calc(var(--e) * (-174deg + var(--k) * 1deg)));
+    rotateY(calc(var(--e) * (-174deg + var(--k) * 1deg)))
+    skewY(calc(var(--bend) * -1.6deg))
+    scaleY(calc(1 - 0.02 * var(--bend)));
 }
 .lb-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 0 calc(2 * var(--u)) calc(2 * var(--u)) 0; }
 .lb-face--front,
 .lb-face--back {
   background:
-    linear-gradient(90deg, rgba(90, 60, 30, 0.22), transparent 16%),
+    linear-gradient(90deg, rgba(90, 60, 30, 0.24), transparent 16%),
+    /* título do capítulo */
+    linear-gradient(rgba(70, 50, 30, 0.42), rgba(70, 50, 30, 0.42)) calc(14 * var(--u)) calc(11 * var(--u)) / calc(38% - 6 * var(--u)) calc(2.4 * var(--u)) no-repeat,
     repeating-linear-gradient(0deg, transparent 0 calc(7 * var(--u)), rgba(70, 50, 30, 0.2) calc(7 * var(--u)) calc(8 * var(--u))) calc(14 * var(--u)) calc(20 * var(--u)) / calc(100% - 28 * var(--u)) calc(100% - 40 * var(--u)) no-repeat,
     linear-gradient(#f8efdc, #efe2c8);
 }
 .lb-face--back {
   transform: rotateY(180deg);
   background:
-    linear-gradient(270deg, rgba(90, 60, 30, 0.22), transparent 16%),
+    linear-gradient(270deg, rgba(90, 60, 30, 0.24), transparent 16%),
+    linear-gradient(rgba(70, 50, 30, 0.42), rgba(70, 50, 30, 0.42)) calc(100% - 14 * var(--u)) calc(11 * var(--u)) / calc(38% - 6 * var(--u)) calc(2.4 * var(--u)) no-repeat,
     repeating-linear-gradient(0deg, transparent 0 calc(7 * var(--u)), rgba(70, 50, 30, 0.2) calc(7 * var(--u)) calc(8 * var(--u))) calc(14 * var(--u)) calc(20 * var(--u)) / calc(100% - 28 * var(--u)) calc(100% - 40 * var(--u)) no-repeat,
     linear-gradient(#f8efdc, #efe2c8);
 }
+/* Sombra que escurece a folha enquanto ela está de pé no meio da virada. */
+.lb-face::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(60, 35, 15, 0.05), rgba(60, 35, 15, 0.34));
+  content: "";
+  opacity: calc(var(--bend) * 0.95);
+  pointer-events: none;
+}
+.lb-face--back::after { background: linear-gradient(270deg, rgba(60, 35, 15, 0.05), rgba(60, 35, 15, 0.34)); }
 
-/* Capa: couro com moldura e emblema dourados. */
+/* Capa: couro com textura, moldura, cantos e emblema dourados. */
 .lb-cover {
   inset: 0;
   transform-origin: left center;
@@ -218,32 +358,36 @@
   justify-items: center;
   gap: calc(10 * var(--u));
   overflow: hidden;
-  background: radial-gradient(120% 90% at 30% 12%, #cd8666, #98543f 46%, #6b3524);
-  box-shadow: inset calc(5 * var(--u)) 0 calc(8 * var(--u)) rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(rgba(0, 0, 0, 0.12) 0.6px, transparent 0.9px) 0 0 / calc(3 * var(--u)) calc(3 * var(--u)),
+    radial-gradient(120% 90% at 30% 12%, #cd8666, #98543f 46%, #6b3524);
+  box-shadow: inset calc(5 * var(--u)) 0 calc(8 * var(--u)) rgba(0, 0, 0, 0.26), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 .lb-cover__front::before {
   position: absolute;
   inset: calc(9 * var(--u));
-  border: 1px solid rgba(226, 194, 127, 0.72);
+  border: 1px solid rgba(226, 194, 127, 0.78);
   border-radius: calc(3 * var(--u));
+  box-shadow: 0 0 0 calc(3 * var(--u)) transparent, inset 0 0 0 calc(3 * var(--u)) rgba(107, 53, 36, 0.35), inset 0 0 0 calc(3.6 * var(--u)) rgba(226, 194, 127, 0.4);
   content: "";
 }
 .lb-cover__front::after {
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.3) 50%, transparent 62%) 130% 0 / 260% 100% no-repeat;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.34) 50%, transparent 62%) 130% 0 / 260% 100% no-repeat;
   content: "";
   animation: lb-shine 6s ease-in-out infinite;
 }
 @keyframes lb-shine { 0%, 30% { background-position: 130% 0; } 60%, 100% { background-position: -40% 0; } }
-.lb-cover__front svg { width: calc(52 * var(--u)); fill: #e2c27f; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.35)); }
+.lb-cover__front svg { width: calc(54 * var(--u)); fill: #e2c27f; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.4)) drop-shadow(0 0 calc(6 * var(--u)) rgba(226, 194, 127, 0.28)); }
 .lb-cover__front span {
   color: #e2c27f;
   font-family: var(--font-sans);
-  font-size: calc(9 * var(--u));
+  font-size: calc(9.5 * var(--u));
   font-weight: 600;
-  letter-spacing: 0.32em;
-  text-indent: 0.32em;
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
   text-transform: uppercase;
 }
 .lb-cover__inside {
@@ -251,10 +395,10 @@
   background: linear-gradient(270deg, rgba(90, 60, 30, 0.3), transparent 22%), #e9dcc0;
 }
 
-/* Sombra no chão e brilho de leitura acompanham o mesmo ciclo de 12 s. */
+/* Sombra no chão, brilho de leitura e partículas acompanham o mesmo ciclo de 12 s. */
 .lb-shadow {
   position: absolute;
-  bottom: calc(12 * var(--u));
+  bottom: calc(10 * var(--u));
   left: 50%;
   width: calc(130 * var(--u));
   height: calc(18 * var(--u));
@@ -273,10 +417,10 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: calc(300 * var(--u));
-  height: calc(240 * var(--u));
-  margin: calc(-120 * var(--u)) 0 0 calc(-150 * var(--u));
-  background: radial-gradient(ellipse, rgba(226, 170, 90, 0.3), transparent 66%);
+  width: calc(320 * var(--u));
+  height: calc(250 * var(--u));
+  margin: calc(-125 * var(--u)) 0 0 calc(-145 * var(--u));
+  background: radial-gradient(ellipse, rgba(226, 170, 90, 0.36), transparent 66%);
   opacity: 0;
   animation: lb-glow 12s linear infinite;
 }
@@ -285,11 +429,46 @@
   30%, 78% { opacity: 1; }
   92%, 100% { opacity: 0; }
 }
+.lb-dust {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(190 * var(--u));
+  height: calc(150 * var(--u));
+  margin: calc(-95 * var(--u)) 0 0 calc(-85 * var(--u));
+  opacity: 0;
+  pointer-events: none;
+  animation: lb-glow 12s linear infinite;
+}
+.lb-dust i {
+  position: absolute;
+  bottom: calc(18 * var(--u));
+  left: calc(10% + var(--i) * 12%);
+  width: calc((2 + (var(--i) - 3) * (var(--i) - 3) * 0.12) * var(--u));
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #f0cf8a;
+  box-shadow: 0 0 calc(6 * var(--u)) rgba(240, 207, 138, 0.9);
+  opacity: 0;
+  animation: lb-dust 4.2s ease-out infinite;
+  animation-delay: calc(var(--i) * -0.6s);
+}
+@keyframes lb-dust {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.6); }
+  20% { opacity: 0.95; }
+  100% { opacity: 0; transform: translate(calc(8 * var(--u)), calc(-80 * var(--u))) scale(1); }
+}
 
 @media (max-width: 860px) {
-  .login-story__art { height: 230px; margin: 4px auto 14px; }
+  .library-landing:not(.has-navigation) .login-story { justify-items: center; }
+  .library-landing:not(.has-navigation) .login-story h2 { max-width: none; }
+  .library-landing:not(.has-navigation) .login-card.ui-card { border-left: 0; border-top: 1px solid var(--border-subtle); }
+  .login-story__art { height: 240px; margin: 4px auto 10px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .lb, .lb-float, .lb-shadow, .lb-glow, .lb-cover__front::after { animation: none; }
+  .lb, .lb-float, .lb-shadow, .lb-glow, .lb-dust, .lb-dust i, .lb-cover__front::after,
+  .library-landing:not(.has-navigation) .login-layout,
+  .library-landing:not(.has-navigation) .login-card > * { animation: none; }
   .lb { --t: 0; }
+  .lb-dust { display: none; }
 }

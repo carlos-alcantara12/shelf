@@ -1,17 +1,27 @@
 const PAGES = [1, 2, 3, 4];
+const DUST = [0, 1, 2, 3, 4, 5, 6];
 
 /**
  * Livro 3D em CSS puro. Um único relógio (`--t`, de 0 a 1, ciclo de 12 s) comanda
- * tudo: a capa abre, as páginas viram uma a uma, e o livro fecha e recomeça.
+ * tudo: a capa abre, as páginas viram uma a uma (com sombra e leve curvatura),
+ * o livro fica aberto soltando partículas de luz e depois fecha e recomeça.
  */
 export default function LoginBook() {
   return (
     <div className="lb-scene" aria-hidden="true">
       <div className="lb-glow" />
       <div className="lb-shadow" />
+      <div className="lb-dust">
+        {DUST.map((i) => (
+          <i key={i} style={{ "--i": i }} />
+        ))}
+      </div>
       <div className="lb-float">
         <div className="lb">
           <div className="lb-back" />
+          <div className="lb-end">
+            <i className="lb-ribbon" />
+          </div>
           <div className="lb-spine" />
           <div className="lb-edge" />
           <div className="lb-top" />

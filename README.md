@@ -2,9 +2,9 @@
 
 **Shelf** é uma aplicação web para organizar livros e acompanhar a vida de leitura: biblioteca pessoal, progresso por páginas, sessões de leitura com timer, avaliações e um perfil de leitor que ajuda a descobrir o que ler a seguir. A interface é inspirada em uma estante física de madeira.
 
-> O repositório ainda se chama `mybooks` e o app Django continua sendo `Backend`; o produto e os textos da interface usam o nome **Shelf**.
+> O app Django continua se chamando `Backend`; o produto, o repositório e os textos da interface usam o nome **Shelf**.
 
-[![Quality checks](https://github.com/carlos-alcantara12/mybooks/actions/workflows/quality.yml/badge.svg)](https://github.com/carlos-alcantara12/mybooks/actions/workflows/quality.yml)
+[![Quality checks](https://github.com/carlos-alcantara12/shelf/actions/workflows/quality.yml/badge.svg)](https://github.com/carlos-alcantara12/shelf/actions/workflows/quality.yml)
 
 ---
 

@@ -1,0 +1,21 @@
+# Dependências e builds
+node_modules/
+dist/
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Segredos e dados locais
+.env
+.env.local
+*.sqlite3
+Backend/backups/
+
+# Editor, sistema e ferramentas
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/
+artifacts/

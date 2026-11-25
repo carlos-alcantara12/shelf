@@ -37,4 +37,5 @@ jobs:
           cache: npm
           cache-dependency-path: Frontend_react/package-lock.json
       - run: npm ci
+      - run: npm run lint
       - run: npm run build

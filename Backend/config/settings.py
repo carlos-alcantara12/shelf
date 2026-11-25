@@ -155,7 +155,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": ["rest_framework_simplejwt.authentication.JWTAuthentication"],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
-    "DEFAULT_THROTTLE_RATES": {"auth": "10/min", "external_catalog": "1/sec"},
+    "DEFAULT_THROTTLE_RATES": {"auth": "10/min", "external_catalog": "1/sec", "diagnostic": "30/min"},
     "PAGE_SIZE": 20,
 }
 

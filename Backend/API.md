@@ -1,4 +1,4 @@
-# API MyBooks
+# API do Shelf
 
 Esta documentação corresponde às rotas e aos serializers atuais do backend. A API usa JSON e termina todas as rotas com `/`. Em desenvolvimento, a URL base é `http://127.0.0.1:8000`; em produção, use o domínio HTTPS configurado.
 
@@ -98,7 +98,7 @@ Criações bem-sucedidas retornam `201`, consultas e atualizações retornam `20
 |---|---|---|
 | `GET` | `/api/books/` | Lista livros do catálogo |
 | `POST` | `/api/books/` | Cadastra um livro |
-| `GET` | `/api/books/discover/?search=...` | Busca no catálogo MyBooks e no Google Books |
+| `GET` | `/api/books/discover/?search=...` | Busca no catálogo do Shelf e no Google Books |
 | `POST` | `/api/books/import/` | Importa metadados de uma obra escolhida |
 | `GET` | `/api/books/{id}/` | Consulta um livro |
 | `PUT`, `PATCH` | `/api/books/{id}/` | Atualiza um livro (administrador) |
@@ -124,13 +124,15 @@ A resposta de livro inclui `id`, esses campos e `created_at` em formato ISO 8601
 
 A busca online recebe `search`, `genre` e `page`. Ela consulta os livros locais e o Google Books; quando a chave do Google não está configurada ou não há resultados, usa o Open Library como alternativa. Resultados duplicados são combinados por título e autor. Configure `GOOGLE_BOOKS_API_KEY` no backend para ativar a fonte principal; a chave nunca é enviada ao navegador. A rota de busca apenas consulta os catálogos: não grava resultados no banco.
 
-Quando a pessoa escolhe uma obra online, o frontend envia `POST /api/books/import/`. Para Google Books, o corpo contém `{"provider":"google_books","source_id":"ID_DO_VOLUME"}`; para Open Library, contém `provider`, `source_id` e os metadados normalizados do resultado. O backend valida e cria ou reutiliza o registro local. Em seguida, o frontend adiciona esse `book_id` à biblioteca pessoal ou compartilhada. Isso elimina o cadastro manual prévio; os metadados só entram no banco depois da escolha, pois o progresso e as estantes do MyBooks precisam referenciar uma obra local. As fontes são as APIs de [Google Books](https://developers.google.com/books/docs/v1/using) e [Open Library](https://openlibrary.org/dev/docs/api/search).
+Quando a pessoa escolhe uma obra online, o frontend envia `POST /api/books/import/`. Para Google Books, o corpo contém `{"provider":"google_books","source_id":"ID_DO_VOLUME"}`; para Open Library, contém `provider`, `source_id` e os metadados normalizados do resultado. O backend valida e cria ou reutiliza o registro local. Em seguida, o frontend adiciona esse `book_id` à biblioteca pessoal ou compartilhada. Isso elimina o cadastro manual prévio; os metadados só entram no banco depois da escolha, pois o progresso e as estantes do Shelf precisam referenciar uma obra local. As fontes são as APIs de [Google Books](https://developers.google.com/books/docs/v1/using) e [Open Library](https://openlibrary.org/dev/docs/api/search).
 
 ### Progresso de leitura
 
 `GET /api/reading-stats/` retorna os avanços registrados pela pessoa autenticada, agrupados por dia (últimos 7 dias), semana (últimas 8 semanas) e mês (últimos 6 meses). Cada período contém `label`, `pages` (páginas avançadas), `books` (obras concluídas) e `minutes` (tempo cronometrado). O histórico começa a ser registrado a partir da aplicação das migrações; atividades anteriores não podem ser reconstruídas a partir do progresso atual.
 
-O timer usa `GET /api/reading-sessions/` para consultar uma sessão ativa, `POST /api/reading-sessions/start/` para iniciar e `POST /api/reading-sessions/stop/` para encerrar. Só pode haver uma sessão ativa por usuário. `GET /api/reading-goal/` consulta a meta diária; `PATCH /api/reading-goal/` atualiza `target_minutes` (inteiro entre 1 e 1440; padrão de 30 minutos). As sessões encerradas compõem o total de minutos dos gráficos.
+Com `?period=week|month|year&offset=0` (0 = período atual, -1 = anterior, até -600), retorna um período fechado: `title`, `start`, `end`, `is_current`, `buckets` (7 dias, os dias do mês ou 12 meses, cada um com `label`, `pages`, `books`, `minutes`) e `totals`. Período ou `offset` inválido retorna 400.
+
+O timer usa `GET /api/reading-sessions/` para consultar uma sessão ativa, `POST /api/reading-sessions/start/` para iniciar e `POST /api/reading-sessions/stop/` para encerrar. `start` aceita `book` (código de um livro da própria biblioteca; opcional), devolvido na sessão. Só pode haver uma sessão ativa por usuário. As tarefas de `/api/reading-tasks/` aceitam `book` no corpo e o filtro `?book=<id>`. `GET /api/reading-goal/` consulta a meta diária; `PATCH /api/reading-goal/` atualiza `target_minutes` (inteiro entre 1 e 1440; padrão de 30 minutos). As sessões encerradas compõem o total de minutos dos gráficos.
 
 Exemplo de resposta:
 
@@ -184,7 +186,7 @@ A resposta inclui `id`, `status`, `pages_read`, `added_at` e o objeto `book` do 
 
 `GET /api/mailbox/` reúne convites e pedidos de remoção recebidos em uma única caixa de entrada, ordenados do mais recente ao mais antigo. Cada item informa seu tipo, remetente, assunto, conteúdo, status, data de abertura e ações disponíveis. A resposta também inclui `unread_count` para exibir a quantidade de cartas ainda não abertas. A caixa retorna apenas itens recebidos pelo usuário autenticado.
 
-O proprietário convida uma conta MyBooks pelo nome de usuário:
+O proprietário convida uma conta Shelf pelo nome de usuário:
 
 `POST /api/shared-invitations/`
 
@@ -258,6 +260,35 @@ Exemplo de criação administrativa:
 
 Cada livro pode aparecer uma vez na lista de tendências. Para adicionar um destaque à categoria Quero ler, crie uma entrada em `/api/library/` com `status: "WANT_TO_READ"`.
 
+### Perfil de leitor (diagnóstico)
+
+Questionário de 40 perguntas em camadas: o **nível 1** usa as perguntas 1 a 10, o **nível 2** as 1 a 20 e o **nível 3** todas. Os endpoints públicos servem quem ainda não tem conta; o perfil salvo exige autenticação. O banco de perguntas e a pontuação ficam no servidor (`Backend/diagnostic/`); a especificação completa está em `Docs/perfil-de-leitor.md`.
+
+| Método | Rota | Acesso | Ação |
+|---|---|---|---|
+| `GET` | `/api/diagnostic/questions/?level=1\|2\|3` | Público | Perguntas do nível, em blocos de 10 (padrão: nível 3) |
+| `POST` | `/api/diagnostic/evaluate/` | Público, 30/min | Calcula o perfil **sem gravar nada** |
+| `GET` | `/api/diagnostic/profile/` | Autenticado | Perfil salvo, recalculado com o banco de perguntas atual (404 se não houver) |
+| `PUT` | `/api/diagnostic/profile/` | Autenticado | Cria (201) ou substitui (200) o perfil com o conjunto de respostas |
+| `PATCH` | `/api/diagnostic/profile/` | Autenticado | Aprofunda: junta novas respostas às existentes e pode subir o nível |
+| `DELETE` | `/api/diagnostic/profile/` | Autenticado | Apaga o perfil (204, mesmo que não exista) |
+
+Corpo de `evaluate` e `PUT`/`PATCH`:
+
+```json
+{
+  "level": 1,
+  "answers": {"q01": ["g1", "g4"], "q02": "dois_tres", "q04": 5, "q08": [], "q40": ["Dom Casmurro"]}
+}
+```
+
+- Tipos de resposta: `single` (id da opção), `checklist` e `pick3` (lista de ids; `max_choices` limita), `scale` (inteiro de 1 a 5) e `text` (lista de até 3 títulos de até 200 caracteres, opcional).
+- `null` ou ausência significa "prefiro não responder"; não conta na pontuação.
+- Perguntas fora do nível informado são rejeitadas, e todos os erros voltam de uma vez em `{"answers": {"q02": "..."}}`.
+- No `PATCH`, o nível não pode diminuir.
+
+Resposta (resumo): `level`, `answered`, `complete`, `detail` (`basico`, `intermediario` ou `completo`), `archetype` e `secondary_archetype` (`id`, `label`, `summary`, `description`, `reading_tip`, `similarity`), `genres` e `top_genres`, `style`, `habits`, `motivations` (notas de 0 a 100 por eixo), `restrictions`, `languages`, `traits`, `themes`, `known_books`, `signature` (`strongest`, `balanced` e `tension`, calculados só com eixos de pelo menos duas respostas; cada um pode ser `null`), `unknown_axes` (eixos ainda sem resposta) e `warnings` (conflitos entre respostas).
+
 ## Respostas de erro
 
 | HTTP | Significado comum |
@@ -274,3 +305,10 @@ Erros de validação retornam JSON com os campos que precisam ser corrigidos, po
 ```
 
 Duplicidades conhecidas retornam mensagens nos campos `title`, `book` ou `book_id`, `username` e `email` (a chave da biblioteca pode variar entre validação do modelo e colisão no banco). Erros `401` e `403` não incluem detalhes de validação.
+
+Nas perguntas devolvidas por `GET /api/diagnostic/questions/`, cada uma traz `topic` (`label`, `icon`, `color`) e, nas de escala, `explain` (`agree`, `disagree`, `note`) usado pelo botão "Entenda".
+
+### Indicações de leitura
+
+- `POST /api/diagnostic/recommendations/` (aberto, mesmo corpo de `evaluate`): devolve `archetype` e 3 `items` (de gêneros diferentes) do catálogo curado (`Backend/diagnostic/catalog.py`, cerca de 60 obras). Cada item traz `id`, `title`, `author`, `year`, `blurb`, `genre`, `reasons` (por que combina com o perfil) e `traits`. Livros que acionam uma restrição da pessoa ou que ela já citou na Q40 ficam de fora, e cada um vem de um gênero diferente quando possível. A resposta é determinística e não consulta a internet.
+- `GET /api/diagnostic/books/<id>/cover/` (aberto): `{ "cover_url", "book" }`, com a capa e os dados da obra no catálogo online (o mesmo formato da busca do catálogo, pronto para `POST /api/books/import/`). Fica em cache por 7 dias; se o catálogo online falhar, devolve `cover_url` vazio e `book: null`.

@@ -100,10 +100,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
 
 
 class ReadingTaskSerializer(serializers.ModelSerializer):
+    book = serializers.PrimaryKeyRelatedField(queryset=Book.objects.all(), required=False, allow_null=True)
+
     class Meta:
         model = ReadingTask
-        fields = ("id", "title", "completed", "created_at", "completed_at")
+        fields = ("id", "book", "title", "completed", "created_at", "completed_at")
         read_only_fields = ("id", "created_at", "completed_at")
+
+    def validate_book(self, book):
+        user = self.context["request"].user
+        if book and not LibraryEntry.objects.filter(user=user, book=book).exists():
+            raise serializers.ValidationError("Este livro não está na sua biblioteca.")
+        return book
 
 
 class BookSerializer(serializers.ModelSerializer):

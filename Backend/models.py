@@ -195,6 +195,14 @@ class ReadingGoal(models.Model):
 
 class ReadingTask(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="reading_tasks")
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="reading_tasks",
+        verbose_name="livro",
+    )
     title = models.CharField("tarefa de leitura", max_length=160)
     completed = models.BooleanField("concluída", default=False)
     created_at = models.DateTimeField("criada em", auto_now_add=True)
@@ -208,6 +216,14 @@ class ReadingTask(models.Model):
 
 
 class ReadingSession(models.Model):
+    book = models.ForeignKey(
+        Book,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="reading_sessions",
+        verbose_name="livro",
+    )
     target_minutes = models.PositiveSmallIntegerField("meta de tempo da sess\u00e3o", null=True, blank=True)
     target_pages = models.PositiveSmallIntegerField("meta de p\u00e1ginas da sess\u00e3o", null=True, blank=True)
     chapter_notes = models.TextField("anota\u00e7\u00f5es de cap\u00edtulos", blank=True, default="")
@@ -654,3 +670,33 @@ class TrendingBook(models.Model):
 
     def __str__(self):
         return f"#{self.position} — {self.book}"
+
+
+class ReaderProfile(models.Model):
+    """Perfil de leitor de uma pessoa: respostas do questionário e o resultado calculado."""
+
+    LEVEL_CHOICES = [(1, "Rápido (10 perguntas)"), (2, "Intermediário (20)"), (3, "Completo (40)")]
+
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="reader_profile",
+        verbose_name="usuário",
+    )
+    level = models.PositiveSmallIntegerField("nível", choices=LEVEL_CHOICES, default=1)
+    answers = models.JSONField("respostas", default=dict)
+    result = models.JSONField("resultado", default=dict, blank=True)
+    archetype = models.CharField("tipo de leitor", max_length=32, blank=True)
+    secondary_archetype = models.CharField("traço secundário", max_length=32, blank=True)
+    bank_version = models.CharField("versão do banco de perguntas", max_length=16, blank=True)
+    completed = models.BooleanField("nível concluído", default=False)
+    created_at = models.DateTimeField("criado em", auto_now_add=True)
+    updated_at = models.DateTimeField("atualizado em", auto_now=True)
+
+    class Meta:
+        verbose_name = "perfil de leitor"
+        verbose_name_plural = "perfis de leitor"
+
+    def __str__(self):
+        return f"Perfil de {self.user} ({self.archetype or 'sem tipo'})"
+

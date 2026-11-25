@@ -69,8 +69,14 @@ def normalize_google_volume(volume):
     categories = info.get("categories") or []
     genre = str(categories[0] if categories else "")[:100]
     image_links = info.get("imageLinks") or {}
-    cover_url = image_links.get("thumbnail") or image_links.get("smallThumbnail") or ""
-    cover_url = cover_url.replace("http://", "https://", 1)
+    # Do maior para o menor; a miniatura recebe zoom maior e perde o "efeito de página dobrada" (edge=curl).
+    cover_url = next(
+        (image_links[key] for key in ("extraLarge", "large", "medium", "thumbnail", "smallThumbnail") if image_links.get(key)),
+        "",
+    )
+    cover_url = cover_url.replace("http://", "https://", 1).replace("&edge=curl", "")
+    if "zoom=1" in cover_url:
+        cover_url = cover_url.replace("zoom=1", "zoom=3", 1)
     publication_date, publication_year = _publication_fields(info.get("publishedDate"))
 
     return {

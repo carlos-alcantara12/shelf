@@ -1,4 +1,6 @@
-# Projeto MyBooks
+# Shelf — especificação técnica inicial
+
+> Documento original de requisitos, escrito quando o produto ainda se chamava MyBooks. O estado atual do projeto está no [README](../README.md); o perfil de leitor e a tela de biblioteca têm documentos próprios neste diretório.
 
 ## 1\. Coleta de requisitos
 

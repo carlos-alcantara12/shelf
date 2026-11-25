@@ -4,17 +4,19 @@ import { groupIntoShelves, SHELF_CAPACITY } from "@/lib/books";
 
 const DRAG_THRESHOLD = 8;
 const CLICK_SUPPRESS_MS = 450;
+const REMOVE_ZONE = 72; // largura (px) das faixas nas laterais da estante que servem para retirar o livro
 
 /**
  * Arrastar e soltar livros na estante: soltar sobre o centro de outro livro troca os dois
  * de lugar; soltar entre livros (ou numa prateleira vazia) insere naquela posição.
  */
-export function useShelfDrag({ entries, enabled, reload, openBook }) {
+export function useShelfDrag({ entries, enabled, reload, openBook, onRemoveRequest }) {
   const [movingBookId, setMovingBookId] = useState(null);
   const [drag, setDrag] = useState(null); // { entry, color, height, x, y }
   const [overShelf, setOverShelf] = useState(null);
   const [overPosition, setOverPosition] = useState(null);
   const [swapTargetId, setSwapTargetId] = useState(null);
+  const [zone, setZone] = useState(null); // "left" | "right" quando o livro está sobre uma lateral de retirada
   const [error, setError] = useState("");
   const dragRef = useRef(null);
   const suppressClickRef = useRef(false);
@@ -72,8 +74,18 @@ export function useShelfDrag({ entries, enabled, reload, openBook }) {
     return shelf !== currentShelf || position !== Number(entry.position || 0);
   };
 
+  /** Lateral de retirada sob o ponteiro (ou null). Fora da estante, para os lados, também conta. */
+  const zoneAtPoint = (x) => {
+    const shelfBox = document.querySelector(".lib-shelf")?.getBoundingClientRect();
+    if (!shelfBox) return null;
+    if (x <= shelfBox.left + REMOVE_ZONE) return "left";
+    if (x >= shelfBox.right - REMOVE_ZONE) return "right";
+    return null;
+  };
+
   const clearDrag = () => {
     dragRef.current = null;
+    setZone(null);
     setDrag(null);
     setOverShelf(null);
     setOverPosition(null);
@@ -93,6 +105,14 @@ export function useShelfDrag({ entries, enabled, reload, openBook }) {
     state.started = true;
     suppressClickRef.current = true;
     setDrag({ entry: state.entry, color: state.color, height: state.height, x: event.clientX, y: event.clientY });
+    const side = zoneAtPoint(event.clientX);
+    setZone(side);
+    if (side) {
+      setSwapTargetId(null);
+      setOverShelf(null);
+      setOverPosition(null);
+      return;
+    }
     const swap = bookAtPoint(event.clientX, event.clientY, state.entry);
     if (swap) {
       setSwapTargetId(swap.id);
@@ -110,7 +130,13 @@ export function useShelfDrag({ entries, enabled, reload, openBook }) {
   const finish = (event) => {
     const state = dragRef.current;
     if (!state || state.pointerId !== event.pointerId) return;
-    if (state.started) {
+    const side = state.started ? zoneAtPoint(event.clientX) : null;
+    if (side && onRemoveRequest) {
+      onRemoveRequest({ entry: state.entry, color: state.color, height: state.height, x: event.clientX, y: event.clientY, side });
+      suppressTimerRef.current = window.setTimeout(() => {
+        suppressClickRef.current = false;
+      }, CLICK_SUPPRESS_MS);
+    } else if (state.started) {
       const swap = bookAtPoint(event.clientX, event.clientY, state.entry);
       const location = swap ? null : shelfLocationAtPoint(event.clientX, event.clientY, state.entry);
       if (swap) {
@@ -147,6 +173,7 @@ export function useShelfDrag({ entries, enabled, reload, openBook }) {
     overShelf,
     overPosition,
     swapTargetId,
+    zone,
     error,
     handlers: { onPointerDown: begin, onPointerMove: move, onPointerUp: finish, onPointerCancel: cancel, onClick: open },
   };

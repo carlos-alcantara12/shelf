@@ -89,3 +89,36 @@
 
 .book-dialog .bd-heading { margin: 0 0 8px; color: #786854; font-family: var(--font-sans, system-ui, sans-serif); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
 .book-dialog .bd-heading::before, .book-dialog .bd-heading::after { display: none; }
+
+/* Modo cronômetro: o relógio é o centro do diálogo */
+.rp--hero .rp-timer { padding: 26px 26px; }
+.rp--hero .rp-clock { font-size: clamp(3rem, 6vw, 4rem); }
+.bd-switch { align-self: flex-start; justify-self: start; margin: 2px 0 0; padding: 4px 0; border: 0; background: none; color: #98543f; font-family: var(--font-sans, system-ui, sans-serif); font-size: .88rem; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.bd-switch:focus-visible { outline: 2px solid #98543f; outline-offset: 3px; }
+.book-dialog__content-page { align-content: start; }
+.bd-summary { display: grid; gap: 8px; margin: 14px 0 6px; font-family: var(--font-sans, system-ui, sans-serif); }
+.bd-summary p { margin: 0; color: #786854; font-size: .92rem; font-variant-numeric: lining-nums; }
+.bd-summary strong { color: #45372b; }
+
+/* Pergunta do fim da sessão */
+.bd-ended { display: grid; gap: 12px; margin-top: 18px; padding: 22px 24px; border: 1px solid rgba(152, 84, 63, .45); border-radius: 18px; background: color-mix(in srgb, #98543f 7%, #fffaf0); font-family: var(--font-sans, system-ui, sans-serif); animation: bd-ended-in .45s cubic-bezier(.16, .84, .28, 1) both; }
+.bd-ended__kicker { margin: 0; color: #59694f; font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.bd-ended h3 { margin: 0; color: #2b2118; font-family: var(--font-sans, system-ui, sans-serif); font-size: 1.35rem; font-weight: 600; letter-spacing: -.02em; }
+.bd-ended__form { display: grid; gap: 14px; justify-items: start; }
+.bd-ended__form .bd-pages input { width: 110px; padding: 10px 14px; border: 1px solid rgba(117, 81, 56, .35); border-radius: 12px; background: #fff; color: #45372b; font-size: 1.1rem; font-variant-numeric: lining-nums; }
+.bd-ended__form :is(input, button):focus-visible { outline: 2px solid #98543f; outline-offset: 2px; }
+.bd-ended__actions { display: flex; flex-wrap: wrap; gap: 10px; }
+@keyframes bd-ended-in { from { opacity: 0; transform: translateY(12px); } }
+@media (prefers-reduced-motion: reduce) { .bd-ended { animation: none; } }
+
+/* Modo cronômetro: escolha do tempo da sessão */
+.rp-time { display: grid; gap: 12px; padding-top: 6px; }
+.rp-chips { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.rp-chips > button { min-height: 40px; padding: 0 18px; border: 1px solid rgba(112, 80, 51, .35); border-radius: 999px; background: transparent; color: #45372b; font-family: var(--font-sans, system-ui, sans-serif); font-size: .9rem; font-weight: 700; cursor: pointer; transition: background .2s ease, color .2s ease; }
+.rp-chips > button:hover { background: rgba(112, 80, 51, .08); }
+.rp-chips > button.is-on { border-color: #2b2118; background: #2b2118; color: #fff; }
+.rp-chips__custom { display: inline-flex; align-items: center; gap: 8px; color: #786854; font-size: .88rem; }
+.rp-chips__custom input { width: 92px; padding: 9px 14px; border: 1px solid rgba(117, 81, 56, .27); border-radius: 999px; background: rgba(255, 255, 255, .75); color: #45372b; font-family: inherit; font-size: .92rem; font-variant-numeric: lining-nums; }
+.rp-chips :is(button, input):focus-visible { outline: 2px solid #98543f; outline-offset: 2px; }
+.bd-switch--quiet { margin-top: 18px; color: #8a7a68; font-size: .8rem; font-weight: 600; text-decoration-thickness: 1px; }
+

@@ -11,7 +11,7 @@ const asList = (data) => (Array.isArray(data) ? data : data?.results || []);
  * montadas e só uma aparece): `read` (cronômetro, meta do dia e objetivos da sessão) e `notes` (anotações
  * da sessão e tarefas do livro). A página Progresso só mostra a evolução.
  */
-export default function BookReadingPanel({ book, view = "read", onSessionStarted }) {
+export default function BookReadingPanel({ book, view = "read", hero = false, onSessionStarted, onSessionEnded }) {
   const [session, setSession] = useState(null);
   const [goal, setGoal] = useState(30);
   const [goalInput, setGoalInput] = useState("30");
@@ -111,12 +111,14 @@ export default function BookReadingPanel({ book, view = "read", onSessionStarted
   const stop = () =>
     run(async () => {
       const data = await apiRequest("/reading-sessions/stop/", { method: "POST" });
+      const sessionMinutes = Math.max(1, Math.round(data.session.duration_seconds / 60));
       setSession(null);
-      setLastSaved(Math.max(1, Math.round(data.session.duration_seconds / 60)));
+      setLastSaved(sessionMinutes);
       setMinutes("");
       setPages("");
       setNotes({ chapters: "", pages: "" });
       await loadToday();
+      onSessionEnded?.(sessionMinutes);
     });
 
   const saveGoal = (event) => {
@@ -160,7 +162,7 @@ export default function BookReadingPanel({ book, view = "read", onSessionStarted
   const hasSessionNotes = session && (session.chapter_notes || session.page_notes);
 
   return (
-    <section className="rp" aria-label={`Momento de leitura de ${book.title}`} aria-busy={loading}>
+    <section className={`rp${hero ? " rp--hero" : ""}`} aria-label={`Momento de leitura de ${book.title}`} aria-busy={loading}>
       <div className="rp-view" hidden={view !== "read"}>
         <div className={`rp-timer${running ? " is-running" : ""}`}>
           <div>
@@ -184,6 +186,7 @@ export default function BookReadingPanel({ book, view = "read", onSessionStarted
         {elsewhere && <p className="rp-note" role="status">Há uma sessão em andamento em outro livro. Encerre-a para começar esta.</p>}
         {lastSaved && !session && <p className="rp-note rp-note--ok" role="status">Sessão salva: {lastSaved} {lastSaved === 1 ? "minuto" : "minutos"} de leitura.</p>}
 
+        {!hero && (
         <div className="rp-daily">
           <div className="rp-meter" role="progressbar" aria-label="Meta diária" aria-valuemin={0} aria-valuemax={100} aria-valuenow={goalPercent}>
             <i style={{ width: `${goalPercent}%` }} />
@@ -202,7 +205,40 @@ export default function BookReadingPanel({ book, view = "read", onSessionStarted
           )}
         </div>
 
-        {!elsewhere && (
+        )}
+
+        {hero && !elsewhere && (
+          <div className="rp-time">
+            {running ? (
+              session.target_minutes ? (
+                <>
+                  <div className="rp-meter" role="progressbar" aria-label="Tempo da sessão" aria-valuemin={0} aria-valuemax={100} aria-valuenow={sessionPercent}><i style={{ width: `${sessionPercent}%` }} /></div>
+                  <p className="rp-muted"><strong>{Math.min(Math.floor(elapsed / 60), session.target_minutes)}</strong> de {session.target_minutes} min</p>
+                </>
+              ) : (
+                <p className="rp-muted">Leitura livre, sem tempo definido.</p>
+              )
+            ) : (
+              <>
+                <p className="rp-heading">Quanto tempo você quer ler?</p>
+                <div className="rp-chips" role="group" aria-label="Tempo da sessão">
+                  {[15, 30, 45, 60].map((value) => (
+                    <button type="button" key={value} className={minutes === String(value) ? "is-on" : ""} aria-pressed={minutes === String(value)} onClick={() => setMinutes(minutes === String(value) ? "" : String(value))}>
+                      {value} min
+                    </button>
+                  ))}
+                  <label className="rp-chips__custom">
+                    <span className="rp-sr-only">Outro tempo, em minutos</span>
+                    <input type="number" min="1" max="1440" placeholder="Outro" value={minutes} onChange={(event) => setMinutes(event.target.value)} />
+                    <span aria-hidden="true">min</span>
+                  </label>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+
+        {!hero && !elsewhere && (
           <div className="rp-goals">
             <h4 className="rp-heading">Objetivos da sessão</h4>
             {running ? (

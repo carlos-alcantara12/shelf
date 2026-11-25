@@ -69,3 +69,23 @@ Opção **B**. Ela resolve o excesso de rolagem, põe o progresso e a situação
 2. O progresso salva sozinho ao sair do campo, ou prefere manter um botão "Salvar"?
 3. O nome das abas está bom (Leitura, Anotações, Sobre)?
 4. "Retirar da estante" fica como link no rodapé da aba Sobre ou vai para um menu "⋯" no cabeçalho?
+
+## 8. Evolução: modal só de cronômetro (2026-11-25)
+
+Por decisão do usuário, o diálogo passou a ter dois modos:
+- **Cronômetro** (livros que ainda não foram lidos): título, autor, "Detalhes do livro →", progresso em uma linha, cronômetro, meta do dia e objetivos da sessão. Ao encerrar a sessão, pergunta "Até que página você leu?" (com "Terminei o livro" quando o total é conhecido).
+- **Ficha** (livros "Já lidos" abrem direto nela): progresso editável com salvamento automático e as abas Anotações e Sobre, com o link "← Cronômetro".
+- **Decisões adotadas na ausência de resposta:** páginas só no fim da sessão e na ficha; livros "Já lidos" abrem a ficha; a pergunta do fim da sessão não tem campo de anotação (as anotações continuam na aba Anotações e entram na próxima sessão).
+
+## 9. Avaliação e resumo (2026-11-25)
+
+- **Avaliação só depois de concluir:** a aba "Avaliação" da ficha só existe quando o livro está lido com todas as páginas salvas; antes disso a ficha tem só a aba Anotações (sem barra de abas).
+- **Resumo da obra saiu da ficha e foi para o Explorar obras:** cada cartão do catálogo mostra "Resumo" (3 linhas) com "Ler resumo completo" quando o texto é cortado, para a pessoa conferir antes de começar a ler.
+- **"Retirar da estante"** ficou no rodapé da ficha, em qualquer aba.
+
+## 10. Explorar obras só com capas (2026-11-25)
+
+- **Resultados:** grade só de capas (sem texto no cartão), com leve levantada ao passar o mouse; o título e o autor ficam no `aria-label` e no `title`.
+- **Modal da obra:** ao clicar, abre o modal com a capa de ponta a ponta, título, autor, a **nota média de 0 a 5 estrelas** (vinda das avaliações da web: `average_rating` e `ratings_count`, com preenchimento parcial) e o **resumo da obra**, além de "Começar a ler" e "Salvar nos desejos". Sem avaliação, mostra "Sem avaliações na web ainda".
+- **Código:** `features/catalog/BookPreviewDialog.jsx` e `StarRating.jsx`; o antigo `BookCard.jsx` foi removido.
+

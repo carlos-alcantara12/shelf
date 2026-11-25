@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useLibrary } from "@/app/LibraryContext";
+import { apiRequest } from "@/lib/api";
 import { Button } from "@/design-system";
 import Bookshelf from "@/features/library/Bookshelf";
-import LibraryOverview from "@/features/library/LibraryOverview";
 import LibraryToolbar from "@/features/library/LibraryToolbar";
 import { normalizeCatalogMatch } from "@/lib/books";
 import "./library.css";
@@ -19,7 +19,7 @@ function matches(entry, { search, status }) {
 
 export default function LibraryPage() {
   const navigate = useNavigate();
-  const { entries, loading, loadError, reload, pulledBookId, openBook } = useLibrary();
+  const { entries, loading, loadError, reload, pulledBookId, openBook, removeEntry } = useLibrary();
   const [filters, setFilters] = useState(NO_FILTERS);
 
   const counts = useMemo(() => {
@@ -32,7 +32,6 @@ export default function LibraryPage() {
 
   const filtersActive = Boolean(filters.search || filters.status);
   const visible = useMemo(() => entries.filter((entry) => matches(entry, filters)), [entries, filters]);
-  const currentReading = entries.find((entry) => entry.status === "READING");
   const updateFilters = (patch) => setFilters((current) => ({ ...current, ...patch }));
 
   let subtitle = "Você ainda não cadastrou nenhum livro.";
@@ -90,11 +89,22 @@ export default function LibraryPage() {
               <Button variant="ghost" onClick={() => setFilters(NO_FILTERS)}>Limpar filtros</Button>
             </div>
           ) : (
-            <Bookshelf key={filters.status} entries={visible} canReorder={!filtersActive} reload={reload} openBook={openBook} pulledBookId={pulledBookId} />
+            <Bookshelf
+              key={filters.status}
+              entries={visible}
+              canReorder={!filtersActive}
+              reload={reload}
+              openBook={openBook}
+              pulledBookId={pulledBookId}
+              onRemove={async (entry) => {
+                await apiRequest(`/library/${entry.id}/`, { method: "DELETE" });
+                removeEntry(entry.id);
+                reload();
+              }}
+            />
           )}
         </div>
 
-        <LibraryOverview counts={counts} currentReading={currentReading} onOpen={openBook} />
       </div>
     </section>
   );

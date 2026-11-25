@@ -8,6 +8,26 @@
 
 ---
 
+## O problema que o Shelf resolve
+
+Quem lê com frequência acaba espalhando a vida de leitura por vários lugares: uma lista de desejos num app, as páginas lidas numa anotação, as notas e opiniões na memória, as recomendações em conversas e redes sociais. Isso gera quatro dificuldades:
+
+1. **Falta de um lugar só.** Não existe uma visão única do que está na fila, do que está em andamento e do que já foi lido.
+2. **Falta de constância.** Sem registrar quanto e quando lê, a pessoa não percebe se o hábito está pegando e perde a motivação para continuar.
+3. **Dificuldade de escolher o próximo livro.** As indicações costumam ser genéricas e ignoram o jeito de ler de cada pessoa (ritmo, gêneros, tamanho de livro preferido).
+4. **Ler em grupo é desorganizado.** Dois ou mais leitores que querem ler os mesmos livros não têm onde manter uma estante em comum sem misturar o progresso de cada um.
+
+### Como o Shelf responde
+
+| Dificuldade | O que o Shelf oferece |
+|---|---|
+| Sem lugar único | Estante pessoal com os status **Quero ler / Lendo / Lido**, busca e filtros |
+| Sem constância | Cronômetro, meta diária, objetivos e tarefas dentro de cada livro, e a evolução por semana, mês e ano |
+| Escolha do próximo livro | Questionário de perfil de leitor, com indicações que explicam o motivo de cada uma |
+| Leitura em grupo | Bibliotecas compartilhadas com convites; status e progresso continuam individuais |
+
+---
+
 ## O que já funciona
 
 | Área | Situação |

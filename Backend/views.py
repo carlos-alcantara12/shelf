@@ -112,6 +112,8 @@ class ReadingStatsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
+        if request.query_params.get("period"):
+            return self.get_period(request)
         today = timezone.localdate()
         daily_start = today - timedelta(days=6)
         current_week = today - timedelta(days=today.weekday())
@@ -182,6 +184,87 @@ class ReadingStatsView(APIView):
         return Response({"daily": daily, "weekly": weekly, "monthly": monthly})
 
 
+    MONTHS_PT = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"]
+    WEEKDAYS_PT = ["seg", "ter", "qua", "qui", "sex", "sáb", "dom"]
+
+    def get_period(self, request):
+        """Evolução de um período fechado (semana, mês ou ano), com navegação por `offset` (0 = atual, -1 = anterior)."""
+        period = request.query_params.get("period")
+        if period not in ("week", "month", "year"):
+            raise ValidationError({"period": "Use week, month ou year."})
+        try:
+            offset = int(request.query_params.get("offset", "0"))
+        except ValueError as error:
+            raise ValidationError({"offset": "Informe um número inteiro."}) from error
+        if not -600 <= offset <= 0:
+            raise ValidationError({"offset": "Use 0 para o período atual ou um número negativo para os anteriores."})
+
+        today = timezone.localdate()
+        if period == "week":
+            start = today - timedelta(days=today.weekday()) + timedelta(weeks=offset)
+            end = start + timedelta(days=6)
+            keys = [start + timedelta(days=index) for index in range(7)]
+            labels = [self.WEEKDAYS_PT[day.weekday()] for day in keys]
+            title = f"{start.strftime('%d/%m')} a {end.strftime('%d/%m/%Y')}"
+            key_of = lambda day: day
+        elif period == "month":
+            index = today.year * 12 + today.month - 1 + offset
+            year, month = index // 12, index % 12 + 1
+            start = date(year, month, 1)
+            end = date(year + (month == 12), month % 12 + 1, 1) - timedelta(days=1)
+            keys = [start + timedelta(days=n) for n in range(end.day)]
+            labels = [str(day.day) for day in keys]
+            title = f"{self.MONTHS_PT[month - 1].capitalize()} de {year}"
+            key_of = lambda day: day
+        else:
+            year = today.year + offset
+            start, end = date(year, 1, 1), date(year, 12, 31)
+            keys = [(year, month) for month in range(1, 13)]
+            labels = [name[:3] for name in self.MONTHS_PT]
+            title = str(year)
+            key_of = lambda day: (day.year, day.month)
+
+        if start > today:
+            raise ValidationError({"offset": "Esse período ainda não começou."})
+
+        start_dt = timezone.make_aware(datetime.combine(start, time.min))
+        end_dt = timezone.make_aware(datetime.combine(end + timedelta(days=1), time.min))
+        totals = {key: [0, 0, 0] for key in keys}
+        activities = ReadingActivity.objects.filter(
+            user=request.user, recorded_at__gte=start_dt, recorded_at__lt=end_dt
+        ).only("pages_read", "books_completed", "recorded_at")
+        for activity in activities:
+            row = totals[key_of(timezone.localtime(activity.recorded_at).date())]
+            row[0] += activity.pages_read
+            row[1] += activity.books_completed
+        sessions = ReadingSession.objects.filter(
+            user=request.user, ended_at__isnull=False, started_at__gte=start_dt, started_at__lt=end_dt
+        ).only("duration_seconds", "started_at")
+        for session in sessions:
+            totals[key_of(timezone.localtime(session.started_at).date())][2] += session.duration_seconds
+
+        buckets = [
+            {"label": label, "pages": totals[key][0], "books": totals[key][1], "minutes": (totals[key][2] + 30) // 60}
+            for label, key in zip(labels, keys)
+        ]
+        return Response(
+            {
+                "period": period,
+                "offset": offset,
+                "title": title,
+                "start": start,
+                "end": end,
+                "is_current": offset == 0,
+                "buckets": buckets,
+                "totals": {
+                    "pages": sum(item["pages"] for item in buckets),
+                    "books": sum(item["books"] for item in buckets),
+                    "minutes": sum(item["minutes"] for item in buckets),
+                },
+            }
+        )
+
+
 class ReadingGoalView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -206,7 +289,13 @@ class ReadingTaskViewSet(viewsets.ModelViewSet):
     http_method_names = ["get", "post", "patch", "delete", "head", "options"]
 
     def get_queryset(self):
-        return ReadingTask.objects.filter(user=self.request.user)
+        queryset = ReadingTask.objects.filter(user=self.request.user)
+        book = self.request.query_params.get("book", "").strip()
+        if book:
+            if not book.isdigit():
+                raise ValidationError({"book": "Informe o código do livro."})
+            queryset = queryset.filter(book_id=int(book))
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
@@ -233,8 +322,18 @@ class ReadingSessionView(APIView):
             for field, value, maximum in (("target_minutes", target_minutes, 1440), ("target_pages", target_pages, 10000)):
                 if value is not None and (isinstance(value, bool) or not isinstance(value, int) or not 1 <= value <= maximum):
                     raise ValidationError({field: f"A meta deve ser um n\u00famero inteiro entre 1 e {maximum}."})
+            book = None
+            book_id = request.data.get("book")
+            if book_id is not None:
+                if isinstance(book_id, bool) or not isinstance(book_id, int):
+                    raise ValidationError({"book": "Informe o código do livro."})
+                entry = LibraryEntry.objects.filter(user=request.user, book_id=book_id).select_related("book").first()
+                if not entry:
+                    raise ValidationError({"book": "Este livro não está na sua biblioteca."})
+                book = entry.book
             session = ReadingSession.objects.create(
                 user=request.user,
+                book=book,
                 target_minutes=target_minutes,
                 target_pages=target_pages,
                 chapter_notes=str(request.data.get("chapter_notes", ""))[:5000],
@@ -258,6 +357,7 @@ class ReadingSessionView(APIView):
     def serialize(session):
         return {
             "id": session.id,
+            "book": session.book_id,
             "started_at": session.started_at,
             "ended_at": session.ended_at,
             "duration_seconds": session.duration_seconds,

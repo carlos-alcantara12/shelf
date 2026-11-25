@@ -1,4 +1,4 @@
-# Backend MyBooks (Django REST Framework)
+# Backend do Shelf (Django REST Framework)
 
 ## Desenvolvimento local
 
@@ -15,7 +15,7 @@ A busca online consulta primeiro o Google Books e usa o Open Library quando a ch
 
 ## Testes automatizados
 
-Com o ambiente virtual ativo e `DJANGO_DEBUG=true`, execute `python manage.py test Backend.tests`. Os testes usam o banco temporário do Django e cobrem autenticação, isolamento de dados, duplicidades, regras de avaliação e permissões de tendências.
+Com o ambiente virtual ativo e `DJANGO_DEBUG=true`, execute `python manage.py test Backend.tests` (81 testes). Os testes usam o banco temporário do Django e cobrem autenticação, isolamento de dados, duplicidades, regras de leitura e avaliação, bibliotecas compartilhadas, permissões de tendências e o perfil de leitor.
 
 ## Produção
 

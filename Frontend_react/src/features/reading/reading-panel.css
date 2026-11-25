@@ -1,0 +1,91 @@
+/* Momento de leitura dentro do diálogo do livro (aba "Ler"). Tons de papel do diálogo. */
+.rp { display: grid; gap: 22px; color: #45372b; text-align: left; }
+.rp [hidden] { display: none !important; }
+.rp-view { display: grid; gap: 14px; }
+.rp :is(h4, p, span, strong, label, button, input, textarea, summary, li) { font-family: var(--font-sans, system-ui, sans-serif); }
+.rp :is(button, input, textarea, summary):focus-visible { outline: 2px solid #98543f; outline-offset: 3px; }
+.rp-sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+.rp-timer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 22px; border: 1px solid rgba(112, 80, 51, .2); border-radius: 18px; background: rgba(255, 255, 255, .55); }
+.rp-timer.is-running { border-color: rgba(152, 84, 63, .55); background: color-mix(in srgb, #98543f 8%, #fffaf0); }
+.rp-kicker { margin: 0 0 4px; color: #98543f; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.rp-clock { font-family: Georgia, serif; font-size: clamp(2.3rem, 5vw, 3rem); font-weight: 400; line-height: 1; letter-spacing: -.01em; font-variant-numeric: tabular-nums lining-nums; }
+.rp-timer.is-running .rp-clock { color: #98543f; }
+
+.rp-btn { min-height: 42px; padding: 0 20px; border: 1px solid rgba(112, 80, 51, .4); border-radius: 999px; background: transparent; color: #45372b; font-size: .9rem; font-weight: 700; cursor: pointer; }
+.rp-btn:hover:not(:disabled) { background: rgba(112, 80, 51, .08); }
+.rp-btn:disabled { opacity: .55; cursor: not-allowed; }
+.rp-btn--main { min-height: 50px; padding: 0 30px; border-color: #98543f; background: #98543f; color: #fff; font-size: .98rem; }
+.rp-btn--main:hover:not(:disabled) { background: #7f4432; }
+.rp-btn--main.is-stop, .rp-btn--ink { border-color: #2b2118; background: #2b2118; color: #fff; }
+.rp-btn--main.is-stop:hover:not(:disabled), .rp-btn--ink:hover:not(:disabled) { background: #000; }
+.rp-btn--small { min-height: 38px; padding: 0 16px; font-size: .85rem; }
+
+.rp-note { margin: -8px 0 0; color: #786854; font-size: .9rem; }
+.rp-note--ok { color: #59694f; font-weight: 700; }
+.rp-muted { color: #786854; }
+
+.rp-daily { display: grid; gap: 8px; }
+.rp-daily p { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin: 0; color: #786854; font-size: .9rem; font-variant-numeric: lining-nums; }
+.rp-daily strong { color: #45372b; }
+.rp-meter { height: 8px; overflow: hidden; border-radius: 999px; background: rgba(112, 80, 51, .13); }
+.rp-meter i { display: block; height: 100%; border-radius: inherit; background: #98543f; transition: width .5s ease-out; }
+.rp-link { padding: 2px; border: 0; background: none; color: #98543f; font-size: .85rem; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+
+.rp-inline { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; color: #786854; font-size: .88rem; }
+.rp-inline input, .rp-fields input, .rp-notes textarea { padding: 9px 14px; border: 1px solid rgba(117, 81, 56, .27); border-radius: 12px; background: rgba(255, 255, 255, .75); color: #45372b; font-size: .92rem; }
+.rp-inline input[type="number"] { width: 84px; }
+.rp-inline--task input { flex: 1 1 200px; min-width: 0; }
+
+.rp-goals { display: grid; gap: 10px; padding-top: 14px; border-top: 1px solid rgba(112, 80, 51, .16); }
+.rp-goals--first { padding-top: 0; border-top: 0; }
+.rp-heading { margin: 0; color: #786854; font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.rp-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.rp-fields label { display: grid; gap: 6px; color: #786854; font-size: .78rem; font-weight: 700; }
+.rp-fields label span { display: flex; align-items: center; gap: 8px; font-weight: 400; }
+.rp-fields input { width: 100%; }
+.rp-notes { display: grid; gap: 8px; }
+.rp-notes textarea { display: block; width: 100%; resize: vertical; }
+.rp-focus { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; font-size: .92rem; }
+.rp-focus li { display: grid; gap: 6px; }
+
+.rp-tasks-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 8px; }
+.rp-count { padding: 2px 10px; border: 1px solid rgba(112, 80, 51, .2); border-radius: 999px; color: #786854; font-size: .8rem; font-variant-numeric: lining-nums; }
+.rp-tasks { display: grid; margin: 0; padding: 0; list-style: none; }
+.rp-tasks li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 0; border-top: 1px solid rgba(112, 80, 51, .13); }
+.rp-x { width: 28px; height: 28px; border: 0; border-radius: 50%; background: transparent; color: #786854; font-size: 1.15rem; cursor: pointer; }
+.rp-x:hover:not(:disabled) { background: rgba(112, 80, 51, .1); color: #45372b; }
+.rp-error { margin: 0; color: #9a3e32; font-size: .9rem; }
+
+/* Cabeçalho do diálogo: onde a pessoa parou (páginas, % e situação) com salvamento automático */
+.bd-progress { display: grid; gap: 6px; margin-top: 12px; font-family: var(--font-sans, system-ui, sans-serif); }
+.bd-progress__row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.bd-field { display: grid; gap: 5px; color: #786854; font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.bd-field--status { justify-items: end; }
+.bd-pages { display: flex; align-items: center; gap: 8px; letter-spacing: 0; text-transform: none; font-weight: 400; }
+.bd-pages input, .bd-field select { padding: 9px 12px; border: 1px solid rgba(117, 81, 56, .27); border-radius: 12px; background: rgba(255, 255, 255, .8); color: #45372b; font-family: inherit; font-size: .95rem; letter-spacing: 0; text-transform: none; }
+.bd-pages input { width: 96px; font-variant-numeric: lining-nums; }
+.bd-pages em { color: #786854; font-size: .92rem; font-style: normal; font-variant-numeric: lining-nums; }
+.bd-percent { color: #98543f; font-size: 2rem; font-weight: 600; line-height: 1; letter-spacing: -.02em; font-variant-numeric: lining-nums; }
+.bd-progress :is(input, select):focus-visible { outline: 2px solid #98543f; outline-offset: 2px; }
+.bd-saved { min-height: 1.1em; margin: 0; color: #59694f; font-size: .78rem; font-weight: 700; text-align: right; }
+.bd-heading { margin: 0 0 8px; color: #786854; font-family: var(--font-sans, system-ui, sans-serif); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.bd-footer { padding-top: 14px; border-top: 1px solid rgba(112, 80, 51, .16); }
+
+/* Abas Leitura | Anotações | Sobre */
+.book-dialog__tabs { display: flex; gap: 4px; width: 100%; margin: 6px 0 0; padding: 4px; border: 1px solid rgba(112, 80, 51, .28); border-radius: 999px; }
+.book-dialog__tabs button { flex: 1; min-height: 38px; padding: 0 12px; border: 0; border-radius: 999px; background: transparent; color: #45372b; font-family: var(--font-sans, system-ui, sans-serif); font-size: .88rem; font-weight: 700; cursor: pointer; }
+.book-dialog__tabs button:hover:not(.is-active) { background: rgba(112, 80, 51, .08); }
+.book-dialog__tabs button.is-active { background: #2b2118; color: #fff; }
+.book-dialog__tabs button:focus-visible { outline: 2px solid #98543f; outline-offset: 2px; }
+.book-dialog__tab-panel { display: grid; gap: 18px; width: 100%; margin: 14px 0 0; }
+
+@media (max-width: 560px) {
+  .rp-timer { padding: 18px; }
+  .rp-btn--main { width: 100%; }
+  .rp-fields { grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { .rp *, .rp *::before { transition: none !important; animation: none !important; } }
+
+.book-dialog .bd-heading { margin: 0 0 8px; color: #786854; font-family: var(--font-sans, system-ui, sans-serif); font-size: .72rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.book-dialog .bd-heading::before, .book-dialog .bd-heading::after { display: none; }

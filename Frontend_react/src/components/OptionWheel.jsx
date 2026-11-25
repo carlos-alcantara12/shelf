@@ -1,0 +1,248 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import "./OptionWheel.css";
+
+const DEFAULT_ITEMS = ["Ambient", "House", "Techno", "Jazz", "Lo-Fi", "Synthwave", "Trance", "Funk", "Disco", "Hip-Hop", "Chillwave", "Drum & Bass"];
+
+export default function OptionWheel({
+  items = DEFAULT_ITEMS,
+  defaultSelected = 3,
+  onChange,
+  textColor = "#a6a6a6",
+  activeColor = "#ffffff",
+  side = "left",
+  fontSize = 3,
+  spacing = 1.4,
+  curve = 1,
+  tilt = 6,
+  blur = 2,
+  fade = 0.25,
+  minOpacity = 0.05,
+  smoothing = 200,
+  inset = 80,
+  loop = false,
+  draggable = true,
+  soundUrl = "",
+  soundVolume = 0.5,
+  className = "",
+}) {
+  const rootRef = useRef(null);
+  const itemRefs = useRef([]);
+  const posRef = useRef(defaultSelected);
+  const targetRef = useRef(defaultSelected);
+  const rafRef = useRef(null);
+  const lastRef = useRef(0);
+  const cfgRef = useRef({});
+  const onChangeRef = useRef(onChange);
+  const selectedRef = useRef(defaultSelected);
+  const wheelTimerRef = useRef(null);
+  const dragRef = useRef(null);
+  const dragMovedRef = useRef(false);
+  const audioRef = useRef(null);
+  const audioUrlRef = useRef("");
+  const lastTickRef = useRef(0);
+  const [selectedIndex, setSelectedIndex] = useState(defaultSelected);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const remPx = typeof window !== "undefined" ? Number.parseFloat(getComputedStyle(document.documentElement).fontSize) || 16 : 16;
+  onChangeRef.current = onChange;
+  cfgRef.current = {
+    count: items.length,
+    items,
+    rowH: Math.max(fontSize * spacing * remPx, 1),
+    curve,
+    tilt,
+    blur,
+    fade,
+    minOpacity,
+    side,
+    loop,
+    smoothing,
+    draggable,
+    soundUrl,
+    soundVolume,
+  };
+
+  const runFrame = useCallback((now) => {
+    const dt = Math.min((now - lastRef.current) / 1000, 0.05);
+    lastRef.current = now;
+    const cfg = cfgRef.current;
+    const tau = Math.max(cfg.smoothing, 1) / 1000;
+    const k = 1 - Math.exp(-dt / tau);
+    const target = targetRef.current;
+    const cur = posRef.current;
+    let next = cur + (target - cur) * k;
+    const settled = Math.abs(target - next) < 0.001;
+    if (settled) next = target;
+    posRef.current = next;
+
+    const mirror = cfg.side === "right" ? -1 : 1;
+    const tiltRad = (cfg.tilt * Math.PI) / 180;
+    const radius = tiltRad > 0.0005 ? cfg.rowH / tiltRad : 0;
+    for (let i = 0; i < cfg.count; i += 1) {
+      const el = itemRefs.current[i];
+      if (!el) continue;
+      let d = i - next;
+      if (cfg.loop && cfg.count > 1) {
+        d = ((d % cfg.count) + cfg.count) % cfg.count;
+        if (d > cfg.count / 2) d -= cfg.count;
+      }
+      const dist = Math.abs(d);
+      let x = 0;
+      let y = d * cfg.rowH;
+      let rot = 0;
+      if (radius > 0) {
+        const angle = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, d * tiltRad));
+        y = radius * Math.sin(angle);
+        x = -mirror * radius * (1 - Math.cos(angle)) * cfg.curve;
+        rot = (mirror * angle * 180) / Math.PI;
+      }
+      el.style.transform = `translate(${x.toFixed(2)}px, calc(${y.toFixed(2)}px - 50%)) rotate(${rot.toFixed(3)}deg)`;
+      el.style.opacity = String(Math.max(cfg.minOpacity, 1 - dist * cfg.fade));
+      el.style.filter = cfg.blur > 0 ? `blur(${(dist * cfg.blur).toFixed(2)}px)` : "none";
+      el.style.setProperty("--ow-p", Math.max(0, 1 - Math.min(dist, 1)).toFixed(4));
+    }
+    rafRef.current = settled ? null : requestAnimationFrame(runFrame);
+  }, []);
+
+  const startLoop = useCallback(() => {
+    if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    lastRef.current = performance.now();
+    rafRef.current = requestAnimationFrame(runFrame);
+  }, [runFrame]);
+
+  const playTick = useCallback(() => {
+    const { soundUrl: url, soundVolume: volume } = cfgRef.current;
+    if (!url) return;
+    const now = performance.now();
+    if (now - lastTickRef.current < 70) return;
+    lastTickRef.current = now;
+    if (!audioRef.current || audioUrlRef.current !== url) {
+      audioRef.current = new Audio(url);
+      audioRef.current.preload = "auto";
+      audioUrlRef.current = url;
+    }
+    audioRef.current.volume = Math.min(Math.max(volume, 0), 1);
+    audioRef.current.currentTime = 0;
+    audioRef.current.play()?.catch(() => {});
+  }, []);
+
+  const applyTarget = useCallback((value, snap) => {
+    const cfg = cfgRef.current;
+    let nextValue = value;
+    if (!cfg.loop) nextValue = Math.min(Math.max(nextValue, 0), Math.max(cfg.count - 1, 0));
+    if (snap) nextValue = Math.round(nextValue);
+    targetRef.current = nextValue;
+    const index = ((Math.round(nextValue) % cfg.count) + cfg.count) % cfg.count;
+    if (index !== selectedRef.current) {
+      selectedRef.current = index;
+      setSelectedIndex(index);
+      onChangeRef.current?.(index, cfg.items[index]);
+      playTick();
+    }
+    startLoop();
+  }, [playTick, startLoop]);
+
+  useEffect(() => {
+    const element = rootRef.current;
+    if (!element) return undefined;
+    const onWheel = (event) => {
+      event.preventDefault();
+      const cfg = cfgRef.current;
+      const delta = event.deltaMode === 1 ? event.deltaY * 24 : event.deltaY;
+      const step = Math.max(-1, Math.min(1, delta / cfg.rowH));
+      applyTarget(targetRef.current + step, false);
+      if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
+      wheelTimerRef.current = setTimeout(() => applyTarget(targetRef.current, true), 140);
+    };
+    element.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      element.removeEventListener("wheel", onWheel);
+      if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current);
+    };
+  }, [applyTarget]);
+
+  const handlePointerDown = useCallback((event) => {
+    if (!cfgRef.current.draggable) return;
+    dragRef.current = { y: event.clientY, start: targetRef.current, id: event.pointerId };
+    dragMovedRef.current = false;
+    setIsDragging(true);
+  }, []);
+
+  const handlePointerMove = useCallback((event) => {
+    const drag = dragRef.current;
+    if (!drag) return;
+    const dy = event.clientY - drag.y;
+    if (!dragMovedRef.current && Math.abs(dy) > 4) {
+      dragMovedRef.current = true;
+      rootRef.current?.setPointerCapture(drag.id);
+    }
+    if (dragMovedRef.current) applyTarget(drag.start - dy / cfgRef.current.rowH, false);
+  }, [applyTarget]);
+
+  const handlePointerEnd = useCallback(() => {
+    if (!dragRef.current) return;
+    dragRef.current = null;
+    setIsDragging(false);
+    if (dragMovedRef.current) applyTarget(targetRef.current, true);
+  }, [applyTarget]);
+
+  const handleItemClick = useCallback((index) => {
+    if (dragMovedRef.current) return;
+    const cfg = cfgRef.current;
+    const currentIndex = ((targetRef.current % cfg.count) + cfg.count) % cfg.count;
+    let distance = index - currentIndex;
+    if (cfg.loop && cfg.count > 1) {
+      if (distance > cfg.count / 2) distance -= cfg.count;
+      else if (distance < -cfg.count / 2) distance += cfg.count;
+    }
+    applyTarget(targetRef.current + distance, true);
+  }, [applyTarget]);
+
+  const handleKeyDown = useCallback((event) => {
+    let delta = null;
+    if (event.key === "ArrowUp" || event.key === "ArrowLeft") delta = -1;
+    else if (event.key === "ArrowDown" || event.key === "ArrowRight") delta = 1;
+    if (delta == null) return;
+    event.preventDefault();
+    applyTarget(Math.round(targetRef.current) + delta, true);
+  }, [applyTarget]);
+
+  useEffect(() => {
+    applyTarget(targetRef.current, false);
+  }, [items, fontSize, spacing, curve, tilt, blur, fade, minOpacity, side, loop, smoothing, applyTarget]);
+
+  useEffect(() => () => {
+    if (rafRef.current != null) cancelAnimationFrame(rafRef.current);
+    rafRef.current = null;
+    audioRef.current?.pause();
+  }, []);
+
+  return (
+    <div
+      ref={rootRef}
+      role="listbox"
+      tabIndex={0}
+      aria-label="Gêneros literários"
+      aria-activedescendant={`option-wheel-item-${selectedIndex}`}
+      className={`option-wheel${side === "right" ? " option-wheel--right" : ""}${isDragging ? " option-wheel--dragging" : ""}${className ? ` ${className}` : ""}`}
+      style={{ "--ow-text-color": textColor, "--ow-active-color": activeColor, "--ow-font-size": `${fontSize}rem`, "--ow-inset": `${inset}px` }}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerEnd}
+      onPointerCancel={handlePointerEnd}
+      onKeyDown={handleKeyDown}
+    >
+      {items.map((item, index) => (
+        <div
+          key={`${item}-${index}`}
+          id={`option-wheel-item-${index}`}
+          ref={(element) => { itemRefs.current[index] = element; }}
+          role="option"
+          aria-selected={selectedIndex === index}
+          className={`option-wheel__item${selectedIndex === index ? " option-wheel__item--selected" : ""}`}
+          onClick={() => handleItemClick(index)}
+        >{item}</div>
+      ))}
+    </div>
+  );
+}

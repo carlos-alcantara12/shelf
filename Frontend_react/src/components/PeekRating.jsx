@@ -132,7 +132,7 @@ export default function PeekRating({
   const handlePointerDown = e => {
     if (!interactive || e.button !== 0 || st.current.pointerId !== null) return;
     rootRef.current?.removeAttribute('data-instant');
-    try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+    try { e.currentTarget.setPointerCapture(e.pointerId); } catch { /* captura de ponteiro é opcional */ }
     st.current.pointerId = e.pointerId;
     st.current.pressing = true;
     measure();

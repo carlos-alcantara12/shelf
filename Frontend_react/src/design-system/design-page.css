@@ -1,0 +1,17 @@
+/* Estilos só da página /dev/design (não fazem parte do design system). */
+.dsp { min-height: 100vh; background: var(--surface-page); color: var(--text-primary); font-family: var(--font-sans); }
+.dsp code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: var(--text-caption); color: var(--text-secondary); }
+.dsp__eyebrow { margin: 0 0 var(--space-3); color: var(--text-accent); font-size: var(--text-caption); font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide); text-transform: uppercase; }
+.dsp__lead { max-width: 56ch; margin: var(--space-4) 0 var(--space-5); color: var(--text-secondary); font-size: var(--text-body-lg); line-height: var(--leading-body); }
+.dsp__body { max-width: 56ch; margin: 0; font-size: var(--text-body); line-height: var(--leading-body); }
+.dsp__group { margin-top: var(--space-6); }
+.dsp__label { margin: 0 0 var(--space-3); color: var(--text-secondary); font-size: var(--text-small); font-weight: var(--weight-semibold); }
+.dsp__swatches { display: flex; flex-wrap: wrap; gap: var(--space-5); }
+.dsp__swatch { display: grid; gap: var(--space-2); }
+.dsp__swatch > span { display: block; width: 128px; height: 72px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); }
+.dsp__row { display: grid; grid-template-columns: 160px minmax(0, 1fr); align-items: baseline; gap: var(--space-4); padding-block: var(--space-4); border-bottom: 1px solid var(--border-subtle); }
+.dsp__buttons { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-3); margin-top: var(--space-5); }
+.dsp__buttons > code { width: 96px; }
+.dsp__space { display: grid; grid-template-columns: 160px auto; align-items: center; gap: var(--space-4); padding-block: var(--space-1); }
+.dsp__space > span { display: block; height: 12px; border-radius: var(--radius-sm); background: var(--accent-strong); }
+@media (max-width: 640px) { .dsp__row { grid-template-columns: 1fr; } }

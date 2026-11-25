@@ -1,0 +1,72 @@
+/*
+ * Moldura do app no tema papel (cabeçalho, rodapé e diálogo do livro).
+ * Usada pelas telas Minha biblioteca e Explorar obras.
+ */
+#library-main.library-landing--paper {
+  --lib-ink: var(--color-ink-900, #1b1a20);
+  --lib-muted: var(--text-secondary, #6b645c);
+  --lib-line: var(--border-subtle, #e1d8c9);
+  --lib-accent: var(--color-terracotta-600, #98543f);
+  min-height: 100svh;
+  background: var(--surface-page, #f5efe6);
+  color: var(--lib-ink);
+  font-family: var(--font-sans);
+}
+#library-main.library-landing--paper::before,
+#library-main.library-landing--paper::after { display: none; }
+
+/* ---------- Cabeçalho do app (versão papel) ---------- */
+#library-main.library-landing--paper .library-header {
+  border-color: var(--lib-line);
+  background: color-mix(in srgb, var(--surface-page, #f5efe6) 92%, transparent);
+}
+#library-main.library-landing--paper.has-navigation .library-header :is(.library-header__mark, .library-wordmark, .library-wordmark span, .library-header__icon-button, .library-text-button) {
+  color: var(--lib-ink);
+  font-family: var(--font-sans);
+}
+#library-main.library-landing--paper .library-wordmark { font-weight: 700; letter-spacing: -0.02em; }
+#library-main.library-landing--paper .library-header__mark { border-color: var(--lib-line); }
+#library-main.library-landing--paper.has-navigation .library-header .library-navigation button { width: auto; min-width: 0; color: var(--lib-muted); font-family: var(--font-sans); font-size: 0.86rem; white-space: nowrap; }
+#library-main.library-landing--paper.has-navigation .library-header .library-navigation button :is(span, svg) { white-space: nowrap; }
+#library-main.library-landing--paper.has-navigation .library-header .library-navigation button:hover { background: color-mix(in srgb, var(--lib-ink) 6%, transparent); color: var(--lib-ink); }
+#library-main.library-landing--paper.has-navigation .library-header .library-navigation button.is-active { background: var(--lib-ink); color: #fff; }
+#library-main.library-landing--paper .library-navigation__indicator { display: none; }
+#library-main.library-landing--paper .ui-avatar.library-header__avatar { border-color: var(--lib-line); background: var(--surface-sunken, #ebe3d5); color: var(--lib-ink); }
+#library-main.library-landing--paper .library-header__actions .library-text-button { color: var(--lib-muted); font-weight: 700; }
+#library-main.library-landing--paper .library-footer,
+#library-main.library-landing--paper .back-to-welcome { color: var(--lib-muted); font-family: var(--font-sans); }
+
+
+/* ---------- Diálogo do livro (portal no body) na versão papel ---------- */
+body:has(.library-landing--paper) .book-dialog,
+body:has(.library-landing--paper) .book-dialog :is(h2, h3, p, span, small, label, input, select, button) {
+  font-family: var(--font-sans);
+  font-variant-numeric: lining-nums;
+}
+body:has(.library-landing--paper) .book-dialog :is(.book-dialog__save-button, .book-dialog__start-reading, .book-dialog__remove-confirm) {
+  border-color: var(--color-terracotta-600, #98543f);
+  background: var(--color-terracotta-600, #98543f);
+  color: #fff;
+  letter-spacing: 0.04em;
+}
+body:has(.library-landing--paper) .book-dialog :is(.book-dialog__eyebrow, .book-dialog__section-kicker) { color: var(--color-terracotta-600, #98543f); }
+body:has(.library-landing--paper) .book-dialog :is(.book-dialog__progress span) { background: var(--color-terracotta-600, #98543f); }
+
+/* Avatar que leva ao perfil */
+#library-main.library-landing--paper .library-header__profile { display: inline-grid; border-radius: 50%; transition: transform 0.2s ease, box-shadow 0.2s ease; }
+#library-main.library-landing--paper .library-header__profile:hover { transform: scale(1.06); }
+#library-main.library-landing--paper .library-header__profile[aria-current="page"] .library-header__avatar { box-shadow: 0 0 0 3px var(--lib-accent); }
+#library-main.library-landing--paper .library-header__profile:focus-visible { outline: 2px solid var(--lib-accent); outline-offset: 3px; }
+
+/* Diálogo do livro: o modal tem a altura de uma capa (proporção 2:3). A capa ocupa o painel esquerdo inteiro,
+   sem sobra, e o conteúdo da direita rola dentro do próprio painel. */
+.book-dialog .book-dialog__cover-page { position: relative; display: grid; grid-template-rows: none; place-items: center; padding: 28px; overflow: hidden; }
+.book-dialog .book-dialog__cover-page::before { display: none; }
+@media (min-width: 900px) {
+  .book-dialog { --dh: min(660px, calc(100dvh - 48px)); width: min(100%, calc(var(--dh) / 1.5 + 660px)); max-height: var(--dh); overflow: hidden; }
+  .book-dialog .book-dialog__book-open { min-height: 0; height: var(--dh); grid-template-columns: calc(var(--dh) / 1.5) minmax(0, 1fr); }
+  .book-dialog .book-dialog__cover-page { min-height: 0; height: var(--dh); padding: 0; }
+  .book-dialog .book-dialog__cover-page img { position: static; width: 100%; height: 100%; max-width: none; max-height: none; border-radius: 0; object-fit: cover; box-shadow: none; }
+  .book-dialog .book-dialog__cover-page .book-dialog__cover-fallback { position: static; width: 100%; height: 100%; min-height: 0; aspect-ratio: auto; border-radius: 0; }
+  .book-dialog .book-dialog__content-page { min-height: 0; height: var(--dh); padding: 22px 30px; overflow-y: auto; overscroll-behavior: contain; }
+}

@@ -1,0 +1,58 @@
+/* Componentes base do Shelf. Só usam tokens de styles/tokens.css. */
+
+/* ---------- Button ---------- */
+.ds-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-sans);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-snug);
+  line-height: 1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out), color var(--duration-fast) var(--ease-out), border-color var(--duration-fast) var(--ease-out), transform var(--duration-fast) var(--ease-out);
+}
+.ds-button:hover:not(:disabled, [aria-disabled="true"]) { transform: translateY(-1px); }
+.ds-button:focus-visible { outline: 2px solid var(--focus-ring-color); outline-offset: 3px; }
+.ds-button:disabled, .ds-button[aria-disabled="true"] { cursor: not-allowed; opacity: 0.5; }
+
+.ds-button--sm { min-height: 36px; padding: 0 var(--space-4); font-size: var(--text-small); }
+.ds-button--md { min-height: 48px; padding: 0 var(--space-5); font-size: var(--text-body); }
+.ds-button--lg { min-height: 56px; padding: 0 var(--space-6); font-size: var(--text-body-lg); }
+
+.ds-button--primary { background: var(--surface-inverse); color: var(--text-on-inverse); }
+.ds-button--primary:hover:not(:disabled, [aria-disabled="true"]) { background: var(--color-night-800); }
+.ds-button--secondary { background: var(--surface-sunken); color: var(--text-primary); }
+.ds-button--secondary:hover:not(:disabled, [aria-disabled="true"]) { background: var(--border-subtle); }
+.ds-button--ghost { border-color: var(--border-strong); background: transparent; color: var(--text-primary); }
+.ds-button--ghost:hover:not(:disabled, [aria-disabled="true"]) { border-color: var(--text-primary); }
+
+/* ---------- Heading ---------- */
+.ds-heading { margin: 0; color: var(--text-primary); font-family: var(--font-sans); text-wrap: balance; }
+.ds-heading--display { font-size: var(--text-display); font-weight: var(--weight-light); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
+.ds-heading--h1 { font-size: var(--text-h1); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); line-height: var(--leading-tight); }
+.ds-heading--h2 { font-size: var(--text-h2); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-tight); line-height: var(--leading-snug); }
+.ds-heading--h3 { font-size: var(--text-h3); font-weight: var(--weight-semibold); letter-spacing: var(--tracking-snug); line-height: var(--leading-snug); }
+.ds-heading--serif { font-family: var(--font-serif); font-weight: var(--weight-regular); }
+.ds-heading--secondary { color: var(--text-secondary); }
+
+/* ---------- Container / Section ---------- */
+.ds-container { width: 100%; max-width: var(--layout-max-width); margin-inline: auto; padding-inline: var(--layout-gutter); }
+.ds-container--narrow { max-width: 760px; }
+.ds-container--wide { max-width: 1480px; }
+
+.ds-section { padding-block: var(--layout-section-gap); color: var(--text-primary); }
+.ds-section--page { background: var(--surface-page); }
+.ds-section--raised { background: var(--surface-raised); }
+.ds-section--inverse { background: var(--surface-inverse); color: var(--text-on-inverse); }
+.ds-section--inverse .ds-heading { color: inherit; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ds-button { transition: none; }
+  .ds-button:hover:not(:disabled) { transform: none; }
+}

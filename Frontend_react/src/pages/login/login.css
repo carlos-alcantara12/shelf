@@ -1,0 +1,295 @@
+/*
+ * Tela de login: fundo em espiral de capas (o mesmo da abertura, em versão
+ * escura) e o livro 3D animado da lateral esquerda.
+ */
+
+/* ---------- Fundo ---------- */
+
+:root:has(.library-landing:not(.has-navigation)) { background: var(--surface-page); }
+.library-landing:not(.has-navigation) {
+  /* Cor de destaque padrão do sistema (terracota): links, cursor e foco. */
+  --login-accent: var(--color-terracotta-600);
+  color: var(--text-primary);
+  background: var(--surface-page);
+}
+.library-landing:not(.has-navigation) .login-spiral { position: fixed; z-index: 0; inset: 0; pointer-events: none; }
+.library-landing:not(.has-navigation) .login-spiral::after {
+  position: absolute;
+  inset: 0;
+  /* Suaviza o centro para o formulário ler bem; as capas aparecem nas bordas. */
+  background: radial-gradient(ellipse 66% 60% at 50% 50%, rgba(245, 239, 230, 0.94), rgba(245, 239, 230, 0.6) 64%, rgba(245, 239, 230, 0.08));
+  content: "";
+}
+.library-landing:not(.has-navigation) > :not(.login-spiral) { position: relative; z-index: 1; }
+.library-landing:not(.has-navigation) .library-header--login { border-color: transparent; }
+
+/* ---------- Cartão ---------- */
+
+.library-landing:not(.has-navigation) .login-layout {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--surface-raised) 80%, transparent);
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(14px);
+}
+.library-landing:not(.has-navigation) .login-story {
+  background: radial-gradient(ellipse at 20% 12%, rgba(255, 255, 255, 0.55), transparent 55%), color-mix(in srgb, var(--surface-sunken) 62%, transparent);
+  color: var(--text-primary);
+}
+.library-landing:not(.has-navigation) .login-story::before { color: rgba(52, 43, 39, 0.045); }
+.library-landing:not(.has-navigation) .login-story::after { border-color: rgba(52, 43, 39, 0.1); box-shadow: 0 0 0 16px rgba(52, 43, 39, 0.02), 0 0 0 38px rgba(52, 43, 39, 0.015); }
+.library-landing:not(.has-navigation) .login-story h2 { color: var(--text-primary); }
+.library-landing:not(.has-navigation) .login-story > p { color: var(--text-secondary); }
+.library-landing:not(.has-navigation) .login-card.ui-card {
+  border-left: 1px solid var(--border-subtle);
+  background: transparent;
+  color: var(--text-primary);
+}
+.library-landing:not(.has-navigation) .login-card.ui-card .ui-card__title { color: var(--text-primary); }
+
+/* ---------- Campos e botões ---------- */
+
+.library-landing:not(.has-navigation) .login-form .ui-field__label { color: var(--text-secondary); }
+.library-landing:not(.has-navigation) .login-form .ui-input {
+  border-bottom: 1px solid var(--border-strong);
+  background: rgba(255, 255, 255, 0.55);
+  color: var(--text-primary);
+  -webkit-text-fill-color: var(--text-primary);
+  caret-color: var(--login-accent);
+}
+.library-landing:not(.has-navigation) .login-form .ui-input:focus-visible {
+  border-bottom: 2px solid var(--login-accent);
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 3px 0 color-mix(in srgb, var(--login-accent) 18%, transparent);
+}
+.library-landing:not(.has-navigation) .login-form .ui-input:-webkit-autofill,
+.library-landing:not(.has-navigation) .login-form .ui-input:-webkit-autofill:hover,
+.library-landing:not(.has-navigation) .login-form .ui-input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary);
+  -webkit-box-shadow: 0 0 0 1000px #fbf8f2 inset;
+  box-shadow: 0 0 0 1000px #fbf8f2 inset;
+}
+.library-landing:not(.has-navigation) .password-toggle { color: var(--login-accent); }
+.library-landing:not(.has-navigation) .password-toggle:hover { color: var(--text-primary); }
+
+/* Botão principal igual ao da abertura: pílula escura. */
+.library-landing:not(.has-navigation) .login-submit-button.ui-button--default {
+  border-color: var(--surface-inverse);
+  border-radius: var(--radius-pill);
+  background: var(--surface-inverse);
+  box-shadow: var(--shadow-sm);
+  color: var(--text-on-inverse);
+}
+.library-landing:not(.has-navigation) .login-submit-button.ui-button--default:hover:not(:disabled) {
+  border-color: var(--color-night-800);
+  background: var(--color-night-800);
+}
+.library-landing:not(.has-navigation) .login-card__footer { border-top-color: var(--border-subtle); color: var(--text-secondary); }
+.library-landing:not(.has-navigation) .login-card__footer .ui-button--link { color: var(--login-accent); }
+.library-landing:not(.has-navigation) .login-card__footer .ui-button--link:hover:not(:disabled) { color: var(--text-primary); }
+.library-landing:not(.has-navigation) .ui-alert--destructive { border-color: rgba(152, 72, 61, 0.35); background: rgba(152, 72, 61, 0.08); color: var(--danger-color); }
+
+/* ---------- Livro ---------- */
+
+@property --t { syntax: "<number>"; inherits: true; initial-value: 0; }
+
+.login-story__art { height: 290px; margin: 6px 0 22px -10px; }
+
+.lb-scene {
+  --u: min(1.25px, 0.16vmin);
+  position: relative;
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  perspective: calc(1100 * var(--u));
+}
+.lb-float { position: relative; transform-style: preserve-3d; animation: lb-float 6s ease-in-out infinite; }
+@keyframes lb-float {
+  0%, 100% { transform: translateY(calc(-5 * var(--u))) rotateZ(-0.8deg); }
+  50% { transform: translateY(calc(6 * var(--u))) rotateZ(0.8deg); }
+}
+
+.lb {
+  --W: calc(120 * var(--u));
+  --H: calc(160 * var(--u));
+  --T: calc(24 * var(--u));
+  /* c: recuo na hora de fechar; ec: progresso suavizado da capa */
+  --c: clamp(0, calc((0.93 - var(--t)) / 0.13), 1);
+  --pc: clamp(0, calc((var(--t) - 0.08) / 0.2), 1);
+  --ec: calc((1 - cos(min(var(--pc), var(--c)) * 180deg)) / 2);
+  position: relative;
+  width: var(--W);
+  height: var(--H);
+  transform-style: preserve-3d;
+  transform: translateX(calc(var(--ec) * var(--W) * 0.5)) rotateX(-12deg) rotateY(calc(26deg - 30deg * var(--ec)));
+  animation: lb-clock 12s linear infinite;
+}
+@keyframes lb-clock { from { --t: 0; } to { --t: 1; } }
+
+.lb > * { position: absolute; }
+.lb-back {
+  inset: 0;
+  transform: translateZ(calc(var(--T) / -2));
+  border-radius: calc(2 * var(--u)) calc(6 * var(--u)) calc(6 * var(--u)) calc(2 * var(--u));
+  background: #5a2c1e;
+}
+.lb-spine {
+  top: 0;
+  left: 0;
+  width: var(--T);
+  height: var(--H);
+  transform-origin: left center;
+  transform: translateZ(calc(var(--T) / 2)) rotateY(90deg);
+  background:
+    linear-gradient(transparent calc(14 * var(--u)), rgba(226, 194, 127, 0.8) 0 calc(15 * var(--u)), transparent 0 calc(100% - 15 * var(--u)), rgba(226, 194, 127, 0.8) 0 calc(100% - 14 * var(--u)), transparent 0),
+    linear-gradient(90deg, #4a2418, #7a3f2e 50%, #4a2418);
+}
+.lb-edge {
+  top: calc(2 * var(--u));
+  left: calc(var(--W) - 3 * var(--u));
+  width: calc(var(--T) - 6 * var(--u));
+  height: calc(var(--H) - 4 * var(--u));
+  transform-origin: left center;
+  transform: translateZ(calc(var(--T) / 2 - 3 * var(--u))) rotateY(90deg);
+  background: repeating-linear-gradient(90deg, #f6ecd9 0 calc(1.4 * var(--u)), #d9c8a5 calc(1.4 * var(--u)) calc(2.2 * var(--u)));
+  opacity: calc(1 - var(--ec));
+}
+.lb-top {
+  top: 0;
+  left: calc(3 * var(--u));
+  width: calc(var(--W) - 6 * var(--u));
+  height: calc(var(--T) - 6 * var(--u));
+  transform-origin: center top;
+  transform: translateZ(calc(var(--T) / 2 - 3 * var(--u))) rotateX(-90deg);
+  background: repeating-linear-gradient(0deg, #f6ecd9 0 calc(1.4 * var(--u)), #d9c8a5 calc(1.4 * var(--u)) calc(2.2 * var(--u)));
+  opacity: calc(1 - var(--ec));
+}
+
+/* Páginas: cada uma vira entre `--s` e `--s + 0.1` do ciclo. */
+.lb-page {
+  --pk: clamp(0, calc((var(--t) - var(--s)) / 0.1), 1);
+  --e: calc((1 - cos(min(var(--pk), var(--c)) * 180deg)) / 2);
+  top: calc(2 * var(--u));
+  bottom: calc(2 * var(--u));
+  left: 0;
+  width: calc(var(--W) - 5 * var(--u));
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transform:
+    translateZ(calc(var(--T) / 2 - 7 * var(--u) + (2 * var(--e) - 1) * (var(--k) - 2.5) * 0.9 * var(--u)))
+    rotateY(calc(var(--e) * (-174deg + var(--k) * 1deg)));
+}
+.lb-face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 0 calc(2 * var(--u)) calc(2 * var(--u)) 0; }
+.lb-face--front,
+.lb-face--back {
+  background:
+    linear-gradient(90deg, rgba(90, 60, 30, 0.22), transparent 16%),
+    repeating-linear-gradient(0deg, transparent 0 calc(7 * var(--u)), rgba(70, 50, 30, 0.2) calc(7 * var(--u)) calc(8 * var(--u))) calc(14 * var(--u)) calc(20 * var(--u)) / calc(100% - 28 * var(--u)) calc(100% - 40 * var(--u)) no-repeat,
+    linear-gradient(#f8efdc, #efe2c8);
+}
+.lb-face--back {
+  transform: rotateY(180deg);
+  background:
+    linear-gradient(270deg, rgba(90, 60, 30, 0.22), transparent 16%),
+    repeating-linear-gradient(0deg, transparent 0 calc(7 * var(--u)), rgba(70, 50, 30, 0.2) calc(7 * var(--u)) calc(8 * var(--u))) calc(14 * var(--u)) calc(20 * var(--u)) / calc(100% - 28 * var(--u)) calc(100% - 40 * var(--u)) no-repeat,
+    linear-gradient(#f8efdc, #efe2c8);
+}
+
+/* Capa: couro com moldura e emblema dourados. */
+.lb-cover {
+  inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transform:
+    translateZ(calc(var(--T) / 2 + 2 * var(--u) - 10 * var(--u) * var(--ec)))
+    rotateY(calc(var(--ec) * -170deg));
+}
+.lb-cover__front,
+.lb-cover__inside {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: calc(2 * var(--u)) calc(6 * var(--u)) calc(6 * var(--u)) calc(2 * var(--u));
+}
+.lb-cover__front {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: calc(10 * var(--u));
+  overflow: hidden;
+  background: radial-gradient(120% 90% at 30% 12%, #cd8666, #98543f 46%, #6b3524);
+  box-shadow: inset calc(5 * var(--u)) 0 calc(8 * var(--u)) rgba(0, 0, 0, 0.22), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+.lb-cover__front::before {
+  position: absolute;
+  inset: calc(9 * var(--u));
+  border: 1px solid rgba(226, 194, 127, 0.72);
+  border-radius: calc(3 * var(--u));
+  content: "";
+}
+.lb-cover__front::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 38%, rgba(255, 255, 255, 0.3) 50%, transparent 62%) 130% 0 / 260% 100% no-repeat;
+  content: "";
+  animation: lb-shine 6s ease-in-out infinite;
+}
+@keyframes lb-shine { 0%, 30% { background-position: 130% 0; } 60%, 100% { background-position: -40% 0; } }
+.lb-cover__front svg { width: calc(52 * var(--u)); fill: #e2c27f; filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.35)); }
+.lb-cover__front span {
+  color: #e2c27f;
+  font-family: var(--font-sans);
+  font-size: calc(9 * var(--u));
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-indent: 0.32em;
+  text-transform: uppercase;
+}
+.lb-cover__inside {
+  transform: rotateY(180deg);
+  background: linear-gradient(270deg, rgba(90, 60, 30, 0.3), transparent 22%), #e9dcc0;
+}
+
+/* Sombra no chão e brilho de leitura acompanham o mesmo ciclo de 12 s. */
+.lb-shadow {
+  position: absolute;
+  bottom: calc(12 * var(--u));
+  left: 50%;
+  width: calc(130 * var(--u));
+  height: calc(18 * var(--u));
+  margin-left: calc(-65 * var(--u));
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(52, 43, 39, 0.38), transparent 70%);
+  animation: lb-ground 12s linear infinite, lb-float-shadow 6s ease-in-out infinite;
+}
+@keyframes lb-ground {
+  0%, 8% { transform: translateX(0) scaleX(1); }
+  28%, 80% { transform: translateX(calc(30 * var(--u))) scaleX(1.55); }
+  93%, 100% { transform: translateX(0) scaleX(1); }
+}
+@keyframes lb-float-shadow { 0%, 100% { opacity: 0.85; } 50% { opacity: 0.55; } }
+.lb-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(300 * var(--u));
+  height: calc(240 * var(--u));
+  margin: calc(-120 * var(--u)) 0 0 calc(-150 * var(--u));
+  background: radial-gradient(ellipse, rgba(226, 170, 90, 0.3), transparent 66%);
+  opacity: 0;
+  animation: lb-glow 12s linear infinite;
+}
+@keyframes lb-glow {
+  0%, 12% { opacity: 0; }
+  30%, 78% { opacity: 1; }
+  92%, 100% { opacity: 0; }
+}
+
+@media (max-width: 860px) {
+  .login-story__art { height: 230px; margin: 4px auto 14px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lb, .lb-float, .lb-shadow, .lb-glow, .lb-cover__front::after { animation: none; }
+  .lb { --t: 0; }
+}

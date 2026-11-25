@@ -1,0 +1,165 @@
+/*
+ * Shelf — design tokens.
+ *
+ * Camadas:
+ *   1. Primitivas  (--color-*)  valores brutos da paleta, sem significado.
+ *   2. Semânticas  (--text-*, --surface-*, --border-*, --accent*)  o que os
+ *      componentes devem usar. É aqui que o tema escuro troca os valores.
+ *   3. Escalas     tipografia, espaçamento, raios, sombras, movimento, layout.
+ *
+ * Os tokens antigos de styles.css (--ink, --paper, --terracotta...) continuam
+ * valendo até as telas internas migrarem (Fase 5).
+ */
+
+:root {
+  /* ---------- Cores dos eixos do perfil de leitor (paleta quente, sem azul) ---------- */
+  --axis-genres: #98543f;
+  --axis-S1: #d99a3d;
+  --axis-S2: #7d4a6b;
+  --axis-S3: #7a2f3a;
+  --axis-S4: #2f6f4f;
+  --axis-S5: #8a8a3c;
+  --axis-S6: #a05a2c;
+  --axis-H1: #98543f;
+  --axis-H2: #59694f;
+  --axis-H4: #a8725a;
+  --axis-H5: #b5546a;
+  --axis-H6: #b07a2a;
+  --axis-H7: #4a6b4f;
+  --axis-motivation: #b5546a;
+  --axis-avoid: #6b5b52;
+  --axis-format: #5a4a3f;
+  --axis-language: #6b7a4a;
+  --axis-books: #b07a2a;
+
+  /* ---------- Fontes (apenas duas famílias) ---------- */
+  --font-sans: "Manrope", "Helvetica Neue", Arial, sans-serif;
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* ---------- Primitivas de cor ---------- */
+  --color-paper-50: #fbf8f2;
+  --color-paper-100: #f5efe6;
+  --color-paper-200: #ebe3d5;
+  --color-ink-900: #1b1a20;
+  --color-ink-800: #342b27;
+  --color-ink-600: #74655b;
+  --color-ink-400: #a79b91;
+  --color-night-900: #171820;
+  --color-night-800: #22232d;
+  --color-lavender-400: #93a7ff;
+  --color-lavender-700: #625cb0;
+  --color-terracotta-600: #98543f;
+  --color-terracotta-400: #c47a5f;
+  --color-amber-500: #d99a3d;
+  --color-wood-700: #80563e;
+  --color-sage-600: #59694f;
+  --color-red-600: #98483d;
+  --color-white: #ffffff;
+
+  /* ---------- Cores semânticas (tema claro) ---------- */
+  --surface-page: var(--color-paper-100);
+  --surface-raised: var(--color-paper-50);
+  --surface-sunken: var(--color-paper-200);
+  --surface-inverse: var(--color-night-900);
+
+  --text-primary: var(--color-ink-900);
+  --text-secondary: var(--color-ink-600);
+  --text-tertiary: var(--color-ink-400);
+  --text-on-inverse: var(--color-white);
+  --text-accent: var(--color-lavender-700);
+
+  --border-subtle: rgba(27, 26, 32, 0.12);
+  --border-strong: rgba(27, 26, 32, 0.28);
+
+  --accent: var(--color-lavender-400);
+  --accent-strong: var(--color-lavender-700);
+  --focus-ring-color: var(--color-lavender-700);
+  --danger-color: var(--color-red-600);
+  --success-color: var(--color-sage-600);
+
+  /* ---------- Escala tipográfica (fluida) ---------- */
+  --text-display: clamp(3.5rem, 8vw, 7.5rem);
+  --text-h1: clamp(2.5rem, 5.5vw, 5rem);
+  --text-h2: clamp(2rem, 3.2vw, 3rem);
+  --text-h3: 1.35rem;
+  --text-body-lg: 1.2rem;
+  --text-body: 1rem;
+  --text-small: 0.875rem;
+  --text-caption: 0.75rem;
+
+  --leading-tight: 1;
+  --leading-snug: 1.15;
+  --leading-body: 1.5;
+
+  --tracking-tight: -0.045em;
+  --tracking-snug: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.12em;
+
+  /* ---------- Espaçamento (base 4px) ---------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+  --space-9: 6rem;
+  --space-10: 8rem;
+
+  /* ---------- Raios ---------- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  /* ---------- Sombras ---------- */
+  --shadow-sm: 0 2px 8px rgba(27, 26, 32, 0.08);
+  --shadow-md: 0 10px 26px rgba(27, 26, 32, 0.1);
+  --shadow-lg: 0 24px 60px rgba(27, 26, 32, 0.16);
+
+  /* ---------- Movimento ---------- */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-slow: 480ms;
+
+  /* ---------- Layout ---------- */
+  --layout-header-height: 72px;
+  --layout-gutter: clamp(20px, 4vw, 40px);
+  --layout-max-width: 1200px;
+  --layout-section-gap: clamp(4rem, 9vw, 8rem);
+}
+
+/*
+ * Tema escuro: estrutura pronta, ainda não ativado.
+ * Para testar: document.documentElement.dataset.theme = "dark".
+ * Os valores abaixo são um ponto de partida a validar na hora de entregá-lo.
+ */
+:root[data-theme="dark"] {
+  --surface-page: #0d0e13;
+  --surface-raised: #15171e;
+  --surface-sunken: #090a0e;
+  --surface-inverse: var(--color-paper-100);
+
+  --text-primary: #f3f0ea;
+  --text-secondary: #b9b2a8;
+  --text-tertiary: #7e776f;
+  --text-on-inverse: var(--color-ink-900);
+  --text-accent: var(--color-lavender-400);
+
+  --border-subtle: rgba(243, 240, 234, 0.12);
+  --border-strong: rgba(243, 240, 234, 0.3);
+
+  --focus-ring-color: var(--color-lavender-400);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 10px 26px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55);
+}

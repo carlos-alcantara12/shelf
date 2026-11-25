@@ -1,0 +1,53 @@
+/*
+ * Perfil: cartão de leitor, tipo de leitor, patentes e o relatório completo do diagnóstico.
+ * A moldura vem de app/paper-shell.css (define --lib-*); o relatório usa os estilos de diagnostic.css.
+ */
+
+.pf { width: min(100% - 32px, 1300px); margin: 0 auto; padding: var(--space-6, 32px) 0 var(--space-8, 64px); }
+.pf :is(h1, h2, h3, p, span, strong, small, li, a, button, em) { font-family: var(--font-sans); }
+.pf :is(a, button):focus-visible { outline: 2px solid var(--focus-ring-color, var(--lib-accent)); outline-offset: 3px; }
+
+.pf-header { display: flex; align-items: center; gap: var(--space-5, 24px); margin-bottom: var(--space-6, 32px); }
+.pf-avatar { display: grid; width: 84px; height: 84px; flex: 0 0 84px; place-items: center; border-radius: 50%; background: var(--lib-ink); color: #fff; font-size: 2.2rem; font-weight: 700; box-shadow: 0 0 0 5px color-mix(in srgb, var(--lib-accent) 30%, transparent); }
+.pf-eyebrow { margin: 0 0 6px; color: var(--lib-accent); font-size: 0.76rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+.pf-header h1 { margin: 0; color: var(--lib-ink); font-size: clamp(2rem, 4vw, 2.9rem); font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; }
+.pf-sub { margin: 6px 0 0; color: var(--lib-muted); font-size: 1.05rem; }
+
+.pf-top { display: grid; grid-template-columns: minmax(0, 440px) minmax(0, 1fr); align-items: start; gap: clamp(24px, 4vw, 56px); margin-bottom: var(--space-8, 64px); padding: clamp(20px, 4vw, 48px); border-radius: 36px; background: var(--color-night-900, #171820); }
+.pf-card { display: grid; gap: var(--space-3, 12px); }
+.pf-note { margin: 0; color: rgba(255, 255, 255, 0.72); font-size: 0.9rem; line-height: 1.5; text-align: center; }
+.pf-note strong { color: #fff; }
+.pf-side { display: grid; gap: var(--space-4, 16px); }
+.pf-panel { display: grid; gap: var(--space-3, 12px); padding: var(--space-5, 24px); border-radius: 24px; background: var(--surface-raised, #faf6ee); }
+.pf-panel__title { margin: 0; color: var(--lib-muted); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+.pf-type { margin: 0; color: var(--lib-ink); font-size: clamp(2.4rem, 5vw, 3.6rem); font-weight: 300; letter-spacing: -0.03em; line-height: 1; }
+.pf-type__secondary { margin: -4px 0 0; color: var(--lib-muted); font-size: 1rem; }
+.pf-muted { margin: 0; color: var(--lib-muted); font-size: 0.97rem; line-height: 1.55; }
+.pf-chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.pf-chips li { padding: 5px 14px; border: 1px solid var(--border-strong, #cfc4b2); border-radius: 999px; color: var(--lib-ink); font-size: 0.88rem; font-weight: 600; }
+.pf-actions { display: flex; flex-wrap: wrap; gap: var(--space-2, 8px); }
+
+.pf-ranks { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.pf-rank { --metal: #c98a56; display: flex; align-items: center; gap: 14px; padding: 10px 14px; border: 1px solid var(--lib-line); border-radius: 16px; }
+.pf-rank--bronze { --metal: #c98a56; }
+.pf-rank--prata { --metal: #aab2bd; }
+.pf-rank--ouro { --metal: #d9a62b; }
+.pf-rank--diamante { --metal: #8fd3e0; }
+.pf-rank > div { flex: 1; display: grid; }
+.pf-rank strong { color: var(--lib-ink); font-size: 1rem; }
+.pf-rank small { color: var(--lib-muted); font-size: 0.82rem; }
+.pf-rank__dot { width: 22px; height: 22px; flex: 0 0 22px; border-radius: 50%; background: radial-gradient(circle at 30% 28%, #fff, var(--metal) 45%, color-mix(in srgb, var(--metal) 55%, #000)); }
+.pf-rank.is-current { border-color: var(--metal); background: color-mix(in srgb, var(--metal) 14%, var(--surface-raised, #faf6ee)); }
+.pf-rank em { padding: 3px 12px; border-radius: 999px; background: var(--lib-ink); color: #fff; font-size: 0.76rem; font-style: normal; font-weight: 700; }
+
+/* Relatório embutido: usa os estilos do diagnóstico sem a moldura de tela cheia */
+.dg--embedded { min-height: 0; background: transparent; }
+.dg--embedded .dg-report > section { scroll-margin-top: calc(var(--layout-header-height, 64px) + 16px); }
+
+@media (max-width: 960px) {
+  .pf-top { grid-template-columns: minmax(0, 1fr); border-radius: 28px; }
+  .pf-card { justify-items: center; }
+}
+@media (max-width: 520px) {
+  .pf-header { flex-direction: column; align-items: flex-start; }
+}

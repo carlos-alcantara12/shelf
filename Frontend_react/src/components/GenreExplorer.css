@@ -1,0 +1,99 @@
+.genre-explorer {
+  position: relative;
+  z-index: 3;
+  isolation: isolate;
+  display: grid;
+  width: 100%;
+  min-height: 100svh;
+  grid-template-columns: minmax(330px, .88fr) minmax(420px, 1.12fr);
+  align-items: center;
+  gap: clamp(22px, 4vw, 64px);
+  padding: 92px clamp(26px, 4.2vw, 72px) 42px;
+  overflow: hidden;
+  background: var(--welcome-bg, #f5efe6);
+  color: #161519;
+  text-align: left;
+}
+
+.genre-explorer__left { position: relative; z-index: 2; min-width: 0; }
+.genre-explorer__left h2 { margin: 0; color: #151417; font-family: "Manrope", "Helvetica Neue", sans-serif; font-size: clamp(2.3rem, 4vw, 3.7rem); font-weight: 650; letter-spacing: -.065em; line-height: .98; }
+.genre-explorer__wheel { width: 100%; height: clamp(340px, 52vh, 500px); margin-top: 12px; }
+.genre-explorer__option-wheel { overflow: visible; }
+
+.genre-books {
+  --genre-tone: #4c4852;
+  --genre-glow: rgba(106, 93, 113, .14);
+  --genre-cover-ink: #fbf7ef;
+  position: relative;
+  display: flex;
+  min-width: 0;
+  height: min(690px, 76svh);
+  flex-direction: column;
+  justify-content: space-between;
+}
+.genre-books--horror { --genre-tone: #41343c; --genre-glow: rgba(117, 65, 77, .17); --genre-cover-ink: #fff0df; }
+.genre-books--suspense { --genre-tone: #3f504c; --genre-glow: rgba(80, 117, 104, .16); --genre-cover-ink: #f8f1df; }
+.genre-books--biography { --genre-tone: #887052; --genre-glow: rgba(185, 152, 101, .19); --genre-cover-ink: #fff7e8; }
+.genre-books--classic { --genre-tone: #6c493c; --genre-glow: rgba(158, 119, 76, .17); --genre-cover-ink: #fbf1dc; }
+.genre-books--romance { --genre-tone: #925d68; --genre-glow: rgba(194, 126, 143, .17); --genre-cover-ink: #fff5ee; }
+.genre-books--fantasy { --genre-tone: #4b5c67; --genre-glow: rgba(92, 129, 153, .2); --genre-cover-ink: #f6f0d7; }
+.genre-books__stage { position: relative; flex: 1; min-height: 0; perspective: 1500px; }
+.genre-books__halo { position: absolute; top: 49%; left: 50%; width: min(86%, 610px); aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, var(--genre-glow), rgba(245,239,230,0) 68%); transform: translate(-50%, -50%); transition: background .5s ease; }
+.genre-books__floor { position: absolute; right: 5%; bottom: 9%; left: 5%; height: 21%; border-radius: 50%; background: radial-gradient(ellipse, rgba(29, 24, 21, .13), transparent 70%); filter: blur(12px); }
+
+.genre-book { position: absolute; z-index: 1; width: clamp(136px, 15vw, 194px); aspect-ratio: 2 / 3; opacity: 0; animation: genre-book-arrive .78s cubic-bezier(.2,.75,.25,1) forwards; }
+.genre-book--1 { top: 10%; left: 7%; --book-rotate: -9deg; --book-delay: 0ms; --book-scale: .9; }
+.genre-book--2 { top: 6%; right: 10%; z-index: 2; --book-rotate: 7deg; --book-delay: 120ms; --book-scale: 1.02; }
+.genre-book--3 { bottom: 6%; left: 35%; --book-rotate: -2deg; --book-delay: 240ms; --book-scale: .82; }
+.genre-book__object { position: absolute; inset: 0; transform: rotateX(2deg) rotateY(-18deg) rotateZ(var(--book-rotate)) scale(var(--book-scale)); transform-style: preserve-3d; animation: genre-book-float 6s ease-in-out infinite; animation-delay: var(--book-delay); }
+.genre-book__cover { position: absolute; inset: 0 12px 0 0; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 13px 12px 10px; overflow: hidden; border: 1px solid rgba(255,255,255,.28); background: linear-gradient(148deg, color-mix(in srgb, var(--genre-tone) 72%, #fff), color-mix(in srgb, var(--genre-tone) 78%, #151319)); box-shadow: inset 1px 0 rgba(255,255,255,.24), inset -1px 0 rgba(0,0,0,.12); color: var(--genre-cover-ink); text-align: center; transform: translateZ(10px); backface-visibility: hidden; }
+.genre-book--2 .genre-book__cover { filter: hue-rotate(17deg) brightness(1.08); }
+.genre-book--3 .genre-book__cover { filter: hue-rotate(-15deg) brightness(.94); }
+.genre-book__spine { position: absolute; top: 0; bottom: 0; left: 0; z-index: -1; width: 18px; border: 1px solid rgba(255,255,255,.16); background: linear-gradient(90deg, color-mix(in srgb, var(--genre-tone) 84%, #111), color-mix(in srgb, var(--genre-tone) 68%, #fff)); transform: rotateY(-90deg) translateX(-9px); transform-origin: left center; }
+.genre-book__pages { position: absolute; top: 3px; right: 0; bottom: 3px; z-index: -1; width: 15px; background: repeating-linear-gradient(0deg, #e6dfd3 0 2px, #c9c1b4 2px 3px); box-shadow: inset -3px 0 4px rgba(45,35,28,.18); transform: rotateY(90deg) translateX(7px); transform-origin: right center; }
+.genre-book__mark { position: relative; z-index: 1; color: color-mix(in srgb, var(--genre-cover-ink) 72%, transparent); font-size: clamp(.38rem, .52vw, .54rem); font-weight: 700; letter-spacing: .17em; }
+.genre-book__art { position: relative; display: grid; width: 76%; aspect-ratio: 1.12; place-items: center; margin: auto 0; overflow: hidden; border: 1px solid color-mix(in srgb, var(--genre-cover-ink) 42%, transparent); background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--genre-tone) 44%, #fff), transparent 62%), linear-gradient(145deg, rgba(10,8,12,.1), rgba(10,8,12,.46)); }
+.genre-book__art::before,.genre-book__art::after { position: absolute; width: 62%; aspect-ratio: 1; border: 1px solid color-mix(in srgb, var(--genre-cover-ink) 60%, transparent); border-radius: 50%; content: ""; }
+.genre-book__art::before { transform: scale(.64); }
+.genre-book__art::after { transform: scale(1.08); opacity: .5; }
+.genre-book__art i { position: absolute; z-index: 1; display: block; width: 4px; height: 4px; border-radius: 50%; background: var(--genre-cover-ink); box-shadow: 0 0 12px var(--genre-cover-ink); }
+.genre-book__art i:nth-child(1) { top: 19%; left: 24%; }
+.genre-book__art i:nth-child(2) { top: 67%; right: 20%; width: 3px; height: 3px; }
+.genre-book__art i:nth-child(3) { bottom: 20%; left: 36%; width: 2px; height: 2px; }
+.genre-books--horror .genre-book__art { background: radial-gradient(circle at 56% 35%, #c89c87 0 8%, transparent 9%), radial-gradient(ellipse at 55% 82%, #15151b 0 26%, transparent 27%), linear-gradient(155deg, #6c454a, #211d28 74%); }
+.genre-books--suspense .genre-book__art { background: radial-gradient(circle at 50% 42%, transparent 0 16%, rgba(238,224,188,.88) 17% 18%, transparent 19%), linear-gradient(135deg, #9c8967, #343c39 70%); }
+.genre-books--biography .genre-book__art { background: radial-gradient(ellipse at 50% 33%, #dfc8a3 0 12%, transparent 13%), radial-gradient(ellipse at 50% 78%, #5d5548 0 27%, transparent 28%), linear-gradient(145deg, #ba9d74, #615744); }
+.genre-books--classic .genre-book__art { background: radial-gradient(circle at 50% 50%, rgba(219,184,119,.8) 0 2%, transparent 3%), repeating-radial-gradient(circle at 50% 50%, transparent 0 10px, rgba(219,184,119,.42) 11px 12px), linear-gradient(145deg, #895d48, #352832); }
+.genre-books--romance .genre-book__art { background: radial-gradient(ellipse at 50% 42%, #ecc7b8 0 10%, transparent 11%), radial-gradient(ellipse at 34% 57%, rgba(229,170,170,.8) 0 8%, transparent 9%), radial-gradient(ellipse at 65% 58%, rgba(229,170,170,.7) 0 8%, transparent 9%), linear-gradient(145deg, #bd7d80, #563c4d); }
+.genre-books--fantasy .genre-book__art { background: radial-gradient(circle at 50% 48%, rgba(214,195,136,.9) 0 5%, transparent 6%), radial-gradient(circle at 28% 24%, #e6d9ad 0 1px, transparent 2px), radial-gradient(circle at 72% 68%, #e6d9ad 0 1px, transparent 2px), linear-gradient(145deg, #66808b, #272f42 72%); }
+.genre-book__title { position: relative; z-index: 1; width: 100%; color: var(--genre-cover-ink); font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(.94rem, 1.18vw, 1.3rem); font-weight: 600; line-height: 1.03; text-wrap: balance; }
+.genre-book__author { position: relative; z-index: 1; color: color-mix(in srgb, var(--genre-cover-ink) 82%, transparent); font-size: clamp(.43rem, .56vw, .58rem); letter-spacing: .08em; text-transform: uppercase; }
+.genre-book__publisher { margin-top: 4px; color: color-mix(in srgb, var(--genre-cover-ink) 58%, transparent); font-size: .34rem; letter-spacing: .14em; }
+
+@keyframes genre-book-arrive { from { opacity: 0; translate: 0 28px; scale: .92; } to { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes genre-book-float { 0%,100% { translate: 0 0; } 50% { translate: 0 -8px; } }
+
+@media (max-width: 860px) {
+  .genre-explorer { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 18px; padding-right: 28px; padding-left: 28px; }
+  .genre-explorer__left h2 { font-size: clamp(2.2rem, 5vw, 3rem); }
+  .genre-explorer__wheel { height: 430px; }
+  .genre-book { width: clamp(122px, 18vw, 160px); }
+}
+
+@media (max-width: 680px) {
+  .genre-explorer { min-height: 100svh; grid-template-columns: minmax(0, 1fr); align-content: start; gap: 10px; padding: 90px 24px 36px; overflow: visible; }
+  .genre-explorer__left h2 { font-size: clamp(2rem, 9vw, 2.8rem); }
+  .genre-explorer__wheel { height: 300px; margin-top: 0; }
+  .genre-books { height: 450px; }
+  .genre-books__stage { min-height: 360px; }
+  .genre-book { width: clamp(112px, 31vw, 155px); }
+  .genre-book--1 { top: 9%; left: 3%; }
+  .genre-book--2 { top: 5%; right: 4%; }
+  .genre-book--3 { bottom: 4%; left: 32%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .genre-books__halo { transition: none; }
+  .genre-book { opacity: 1; animation: none; }
+  .genre-book__object { animation: none; }
+}

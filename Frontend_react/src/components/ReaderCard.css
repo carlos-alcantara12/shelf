@@ -1,0 +1,32 @@
+/* Cartão de leitor: usado na abertura (exemplos) e no perfil da pessoa. */
+
+.wr-stage { display: grid; place-items: center; perspective: 1100px; padding: 24px 0; }
+.wr-card { --mx: 50%; --my: 30%; --rx: 0deg; --ry: 0deg; --m1: #ecc356; --m2: #a8741c; --m3: #fff3c4; --ink: #2a1c05; position: relative; display: grid; gap: 14px; width: min(100%, 400px); padding: 22px; border-radius: 26px; overflow: hidden; color: var(--ink); background: linear-gradient(150deg, var(--m3) 0%, var(--m1) 38%, var(--m2) 100%); box-shadow: 0 0 0 5px color-mix(in srgb, var(--m1) 70%, #000), 0 40px 80px -24px rgba(0, 0, 0, 0.7), 0 0 80px -10px color-mix(in srgb, var(--m1) 45%, transparent); transform: rotateX(var(--rx)) rotateY(var(--ry)); transition: transform 0.25s ease-out; animation: wr-enter 0.7s cubic-bezier(0.16, 0.84, 0.28, 1) both, wr-float 6s ease-in-out 0.8s infinite; }
+.wr-card--bronze { --m1: #c98a56; --m2: #7c4524; --m3: #f0c9a0; --ink: #2b1508; }
+.wr-card--prata { --m1: #cdd3dc; --m2: #7d8795; --m3: #f6f8fb; --ink: #1d232c; }
+.wr-card--ouro { --m1: #ecc356; --m2: #a8741c; --m3: #fff3c4; --ink: #2a1c05; }
+.wr-card--diamante { --m1: #cdeef5; --m2: #9a8fe0; --m3: #ffffff; --ink: #1d1a3a; }
+.wr-card__foil { position: absolute; inset: 0; z-index: 0; border-radius: inherit; pointer-events: none; mix-blend-mode: color-dodge; opacity: 0.6; background: radial-gradient(circle at var(--mx) var(--my), rgba(255, 255, 255, 0.9), transparent 40%), conic-gradient(from 210deg at var(--mx) var(--my), #ff9ad5, #ffe38a, #8affc7, #9ad0ff, #d6a5ff, #ff9ad5); }
+.wr-card > :not(.wr-card__foil) { position: relative; z-index: 1; }
+.wr-card__top { display: flex; align-items: center; justify-content: space-between; }
+.wr-card__tag { padding: 4px 12px; border-radius: 999px; background: rgba(0, 0, 0, 0.78); color: #fff; font-size: 0.74rem; font-weight: 700; }
+.wr-card__level { font-size: 0.95rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.wr-card__art { display: grid; height: 150px; place-items: center; border: 2px solid rgba(0, 0, 0, 0.28); border-radius: 16px; background: radial-gradient(circle at 50% 38%, rgba(255, 255, 255, 0.65), rgba(255, 255, 255, 0) 62%), linear-gradient(160deg, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0.18)); box-shadow: inset 0 0 28px rgba(0, 0, 0, 0.2); }
+.wr-medal { display: grid; width: 92px; height: 92px; place-items: center; border-radius: 50%; background: radial-gradient(circle at 32% 28%, #fff, var(--m1) 48%, var(--m2)); box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35), inset 0 0 0 4px rgba(255, 255, 255, 0.45); color: var(--ink); }
+.wr-medal svg { width: 52px; height: 52px; }
+.wr-card__name h3 { margin: 0; font-size: 1.7rem; font-weight: 800; letter-spacing: -0.02em; }
+.wr-card__name p { margin: 2px 0 0; font-size: 0.9rem; font-weight: 600; opacity: 0.75; }
+.wr-stats { display: grid; gap: 10px; margin: 0; padding: 14px; border-radius: 16px; background: rgba(255, 255, 255, 0.42); list-style: none; }
+.wr-stats div, .wr-xp div { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px; font-size: 0.88rem; font-weight: 600; }
+.wr-stats strong, .wr-xp strong { font-size: 1.05rem; font-weight: 800; font-variant-numeric: lining-nums; }
+.wr-stats i, .wr-xp i { display: block; height: 8px; overflow: hidden; border-radius: 999px; background: rgba(0, 0, 0, 0.18); }
+.wr-stats b, .wr-xp b { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--ink), color-mix(in srgb, var(--ink) 70%, var(--m2))); animation: wr-fill 1s cubic-bezier(0.16, 0.84, 0.28, 1) backwards 0.35s; }
+.wr-xp { padding: 0 2px; }
+.wr-badges { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.wr-badges li { padding: 4px 11px; border-radius: 999px; background: rgba(0, 0, 0, 0.8); color: #fff; font-size: 0.74rem; font-weight: 700; }
+.wr-card__foot { display: flex; justify-content: space-between; gap: 8px; padding-top: 10px; border-top: 1px solid rgba(0, 0, 0, 0.22); font-size: 0.74rem; font-weight: 700; opacity: 0.8; }
+
+@keyframes wr-enter { from { opacity: 0; transform: translateY(26px) rotateX(10deg) scale(0.96); } }
+@keyframes wr-float { 50% { translate: 0 -8px; } }
+@keyframes wr-fill { from { width: 0; } }
+@media (prefers-reduced-motion: reduce) { .wr-card, .wr-card * { animation: none !important; transition: none !important; } }

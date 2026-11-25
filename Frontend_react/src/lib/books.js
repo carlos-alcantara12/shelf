@@ -67,3 +67,31 @@ export function externalBookImportPayload(book) {
   }
   return payload;
 }
+
+/**
+ * Endereço da melhor versão de uma capa. Capas já salvas na estante podem estar em tamanho pequeno:
+ * no Open Library troca -S/-M por -L; no Google Books pede zoom maior e tira a dobra de página.
+ * Se a versão melhor falhar, o componente `BookCover` volta para o endereço original.
+ */
+export function hdCover(url) {
+  if (!url) return url;
+  try {
+    if (url.includes("covers.openlibrary.org")) return url.replace(/-(S|M)\.jpg/, "-L.jpg");
+    if (url.includes("books.google.")) {
+      const address = new URL(url);
+      address.searchParams.set("zoom", "3");
+      address.searchParams.delete("edge");
+      return address.toString();
+    }
+  } catch {
+    return url;
+  }
+  return url;
+}
+
+/** Gênero legível: tira prefixos técnicos (series:harry_potter) e põe a primeira letra em maiúscula. */
+export function cleanGenre(genre) {
+  const text = String(genre || "").replace(/^[a-z]+:/i, "").replace(/_/g, " ").trim();
+  return text ? text.charAt(0).toUpperCase() + text.slice(1) : "";
+}
+

@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLibrary } from "@/app/LibraryContext";
 import { Button } from "@/design-system";
-import BookCard from "@/features/catalog/BookCard";
+import BookPreviewDialog from "@/features/catalog/BookPreviewDialog";
 import { FEATURED_GENRES, GenreArtwork, MORE_GENRES } from "@/features/catalog/genres";
-import Suggestions from "@/features/catalog/Suggestions";
 import { apiRequest } from "@/lib/api";
+import BookCover from "@/components/BookCover";
 import { externalBookImportPayload, normalizeCatalogMatch } from "@/lib/books";
 import "./catalog.css";
 
@@ -30,41 +30,10 @@ export default function CatalogPage() {
   const [addingBook, setAddingBook] = useState(null);
   const [addedBooks, setAddedBooks] = useState({});
   const [feedback, setFeedback] = useState({});
-  const [similarBooks, setSimilarBooks] = useState([]);
-  const [recommendationGenre, setRecommendationGenre] = useState("");
-  const [loadingRecommendations, setLoadingRecommendations] = useState(false);
   const [showAllGenres, setShowAllGenres] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [failedCovers, setFailedCovers] = useState({});
 
-  useEffect(() => {
-    const genreQuery = submittedGenre || results.find((book) => book.genre?.trim())?.genre?.trim() || "";
-    setRecommendationGenre(genreQuery);
-    if (!genreQuery || !results.length) {
-      setSimilarBooks([]);
-      setLoadingRecommendations(false);
-      return undefined;
-    }
-
-    const controller = new AbortController();
-    setLoadingRecommendations(true);
-    const delay = window.setTimeout(() => {
-      const pageToRecommend = submittedGenre ? 2 : 1;
-      apiRequest(`/books/discover/?genre=${encodeURIComponent(genreQuery)}&page=${pageToRecommend}`, { signal: controller.signal })
-        .then((data) => {
-          const normalize = (value) => value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().toLocaleLowerCase("pt-BR");
-          const currentBooks = new Set(results.map((book) => `${normalize(book.title)}|${normalize(book.author)}`));
-          setSimilarBooks((data.results || []).filter((book) => !currentBooks.has(`${normalize(book.title)}|${normalize(book.author)}`)).slice(0, 3));
-        })
-        .catch((requestError) => {
-          if (requestError.name !== "AbortError") setSimilarBooks([]);
-        })
-        .finally(() => setLoadingRecommendations(false));
-    }, 1100);
-
-    return () => {
-      window.clearTimeout(delay);
-      controller.abort();
-    };
-  }, [results, submittedGenre]);
   useEffect(() => {
     if (!submittedSearch && !submittedGenre) return undefined;
     const controller = new AbortController();
@@ -204,13 +173,25 @@ export default function CatalogPage() {
     }
   }
 
+  function clearSearch() {
+    setSearch("");
+    setSubmittedSearch("");
+    setSubmittedGenre("");
+    setResults([]);
+    setTotalBooks(0);
+    setPage(1);
+    setError("");
+  }
+
   const genres = showAllGenres ? [...FEATURED_GENRES, ...MORE_GENRES] : FEATURED_GENRES;
   const searched = Boolean(submittedSearch || submittedGenre);
 
   return (
     <section id="library-content" className="cat" aria-labelledby="explore-title" aria-busy={loading}>
       <header className="cat-header">
+        <p className="cat-eyebrow">Catálogo</p>
         <h1 id="explore-title">Encontre sua próxima leitura</h1>
+        <p className="cat-lead">Busque por título, autor ou gênero. Clique em uma capa para ler o resumo e ver a nota do livro antes de começar.</p>
       </header>
 
       <form className="cat-search" onSubmit={submitSearch} aria-label="Buscar livros no catálogo">
@@ -224,31 +205,46 @@ export default function CatalogPage() {
 
       <section className="cat-genres" aria-labelledby="explore-genres-title">
         <div className="cat-genres__head">
-          <h2 id="explore-genres-title">Explore por gênero</h2>
+          <div>
+            <h2 id="explore-genres-title">Explore por gênero</h2>
+            <p>Escolha um gênero para ver as obras mais lidas dele.</p>
+          </div>
           <button type="button" className="cat-link" aria-expanded={showAllGenres} onClick={() => setShowAllGenres((visible) => !visible)}>
             {showAllGenres ? "Mostrar principais" : "Ver todos os gêneros"}
           </button>
         </div>
-        <div className="cat-genres__list">
-          {genres.map((item) => (
-            <button
-              type="button"
-              key={item.name}
-              className={`cat-genre${submittedGenre === item.name ? " is-active" : ""}`}
-              aria-pressed={submittedGenre === item.name}
-              onClick={() => searchForSuggestion(item.name, "genre")}
-            >
-              <GenreArtwork type={item.art} />
-              {item.name}
-            </button>
+        <ul className="cat-genres__grid">
+          {genres.map((item, index) => (
+            <li key={item.name} style={{ "--tone": item.tone, "--i": index }}>
+              <button
+                type="button"
+                className={`cat-genre${submittedGenre === item.name ? " is-active" : ""}`}
+                aria-pressed={submittedGenre === item.name}
+                onClick={() => searchForSuggestion(item.name, "genre")}
+              >
+                <GenreArtwork type={item.art} />
+                <span className="cat-genre__text">
+                  <strong>{item.name}</strong>
+                  <small>{item.blurb}</small>
+                </span>
+              </button>
+            </li>
           ))}
-        </div>
+        </ul>
       </section>
 
       <div className="cat-layout">
         <div className="cat-main">
           <div className="cat-results-head">
-            <h2>Resultados</h2>
+            <div>
+              <h2>Resultados</h2>
+              {searched && (
+                <p className="cat-filter">
+                  {submittedGenre ? <>Gênero: <strong>{submittedGenre}</strong></> : <>Busca: <strong>{submittedSearch}</strong></>}
+                  <button type="button" onClick={clearSearch} aria-label="Limpar a busca">Limpar</button>
+                </p>
+              )}
+            </div>
             {searched && !loading && (
               <span title={submittedGenre && rankingBasis ? `Ordenadas por ${rankingBasis}. Usa dados acumulados dos catálogos, não tendências em tempo real.` : undefined}>
                 {totalBooks} {totalBooks === 1 ? "obra" : "obras"}
@@ -261,20 +257,28 @@ export default function CatalogPage() {
             <div className="cat-state" role="status"><span className="cat-spinner" aria-hidden="true" />Consultando o catálogo…</div>
           ) : results.length ? (
             <>
-              <div className="cat-results" aria-live="polite">
-                {results.map((book) => (
-                  <BookCard
-                    key={book.id}
-                    book={book}
-                    libraryEntry={libraryEntries.find((entry) => entry.book.id === book.id)}
-                    added={Boolean(addedBooks[book.id])}
-                    feedback={feedback[book.id]}
-                    busyId={addingBook}
-                    onStart={startReading}
-                    onWish={addBook}
-                  />
+              <ul className="cat-covers" aria-live="polite" aria-label="Obras encontradas">
+                {results.map((book, index) => (
+                  <li key={book.id} style={{ "--i": index }}>
+                    <button
+                      type="button"
+                      className="cat-cover"
+                      title={`${book.title}, de ${book.author}`}
+                      aria-label={`Ver detalhes de ${book.title}, de ${book.author}`}
+                      aria-haspopup="dialog"
+                      onClick={() => setSelected(book)}
+                    >
+                      {book.cover_url && !failedCovers[book.id] ? (
+                        <BookCover url={book.cover_url} loading="lazy" onFail={() => setFailedCovers((current) => ({ ...current, [book.id]: true }))} />
+                      ) : null}
+                      <span className="cat-cover__fallback" hidden={Boolean(book.cover_url) && !failedCovers[book.id]} aria-hidden="true">
+                        <strong>{book.title}</strong>
+                        <small>{book.author}</small>
+                      </span>
+                    </button>
+                  </li>
                 ))}
-              </div>
+              </ul>
               {(hasNext || hasPrevious) && (
                 <nav className="cat-pager" aria-label="Páginas do catálogo">
                   <button type="button" className="cat-btn" disabled={!hasPrevious || loading} onClick={() => setPage((value) => Math.max(1, value - 1))}>← Anterior</button>
@@ -290,13 +294,21 @@ export default function CatalogPage() {
             </div>
           )}
 
-          {results.length > 0 && recommendationGenre && (loadingRecommendations || similarBooks.length > 0) && (
-            <aside className="cat-aside" aria-label="Sugestões de livros">
-              <Suggestions books={similarBooks} loading={loadingRecommendations} addedBooks={addedBooks} busyId={addingBook} onWish={addBook} />
-            </aside>
-          )}
         </div>
       </div>
+      {selected && (
+        <BookPreviewDialog
+          key={selected.id}
+          book={selected}
+          libraryEntry={libraryEntries.find((entry) => entry.book.id === selected.id)}
+          added={Boolean(addedBooks[selected.id])}
+          feedback={feedback[selected.id]}
+          busyId={addingBook}
+          onStart={startReading}
+          onWish={addBook}
+          onClose={() => setSelected(null)}
+        />
+      )}
     </section>
   );
 }

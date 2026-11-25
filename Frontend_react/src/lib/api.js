@@ -137,6 +137,15 @@ async function readBody(response, path) {
   try {
     return JSON.parse(text);
   } catch {
+    // HTML com erro 5xx é a página de erro do próprio backend (por exemplo, migração pendente no banco);
+    // HTML com outro status indica que o /api/ não está chegando ao Django.
+    if (response.status >= 500) {
+      throw new ApiError(
+        `O servidor encontrou um erro ao processar o pedido (código ${response.status}). Tente de novo em instantes.` +
+          (import.meta.env.DEV ? " Em desenvolvimento, veja o terminal do backend; se o código foi atualizado, rode: python manage.py migrate." : ""),
+        response.status,
+      );
+    }
     throw new ApiError(
       `A API respondeu com HTML em ${API_BASE_URL}${path.split("?")[0]}. Verifique se o servidor encaminha /api/ para o backend Django.`,
       response.status,

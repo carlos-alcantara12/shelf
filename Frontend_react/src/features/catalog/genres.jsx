@@ -1,17 +1,17 @@
 export const FEATURED_GENRES = [
-  { name: "Fantasia", art: "castle" },
-  { name: "Ficção Científica", art: "planet" },
-  { name: "Mistério", art: "lantern" },
-  { name: "Biografia", art: "bust" },
-  { name: "Romance", art: "flower" },
+  { name: "Fantasia", art: "castle", tone: "#7d4a6b", blurb: "Mundos de magia e criaturas" },
+  { name: "Ficção Científica", art: "planet", tone: "#2f6f4f", blurb: "Futuros, ciência e tecnologia" },
+  { name: "Mistério", art: "lantern", tone: "#7a2f3a", blurb: "Pistas, crimes e suspense" },
+  { name: "Biografia", art: "bust", tone: "#a05a2c", blurb: "Vidas reais, contadas de perto" },
+  { name: "Romance", art: "flower", tone: "#b5546a", blurb: "Amor, vínculos e escolhas" },
 ];
 
 export const MORE_GENRES = [
-  { name: "Aventura", art: "mountains" },
-  { name: "Clássicos", art: "open-book" },
-  { name: "Drama", art: "masks" },
-  { name: "História", art: "column" },
-  { name: "Poesia", art: "quill" },
+  { name: "Aventura", art: "mountains", tone: "#b07a2a", blurb: "Viagens, riscos e descobertas" },
+  { name: "Clássicos", art: "open-book", tone: "#98543f", blurb: "Obras que atravessam o tempo" },
+  { name: "Drama", art: "masks", tone: "#59694f", blurb: "Conflitos e emoções humanas" },
+  { name: "História", art: "column", tone: "#8a6f4a", blurb: "Fatos e épocas que mudaram tudo" },
+  { name: "Poesia", art: "quill", tone: "#a8725a", blurb: "Versos, imagens e silêncio" },
 ];
 
 export function GenreArtwork({ type }) {

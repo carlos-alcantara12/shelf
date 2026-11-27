@@ -17,7 +17,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(rename_wishlist_status, restore_wishlist_status),
+        # AlterField precisa vir antes do RunPython: no PostgreSQL a coluna ainda
+        # é varchar(8) e não comporta "WANT_TO_READ" (13 caracteres).
         migrations.AlterField(
             model_name="libraryentry",
             name="status",
@@ -31,4 +32,5 @@ class Migration(migrations.Migration):
                 verbose_name="status",
             ),
         ),
+        migrations.RunPython(rename_wishlist_status, restore_wishlist_status),
     ]
